@@ -104,7 +104,6 @@ function ComplaintStatus() {
         .from('issues')
         .update({ 
           status: 'Closed',
-          closed_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
         .eq('issue_id', issueId)

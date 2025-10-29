@@ -162,7 +162,7 @@ const Profile = () => {
       try {
         const { data: testData, error: testError } = await supabase
           .from('citizens')
-          .select('count')
+          .select('id')
           .limit(1);
         console.log('Database connection test:', { testData, testError });
       } catch (connError) {
@@ -199,6 +199,13 @@ const Profile = () => {
 
       console.log('Final data to save:', JSON.stringify(profileDataToSave, null, 2));
 
+      // Validate required fields before attempting database operations
+      if (!currentUser.id || !profileData.name_per_aadhaar || !currentUser.email) {
+        throw new Error('Missing required fields: user ID, name, or email');
+      }
+
+      console.log('✅ Required fields validated');
+
       // Try INSERT first (for new records)
       console.log('Attempting INSERT operation...');
       let saveSuccess = false;
@@ -213,11 +220,12 @@ const Profile = () => {
 
         console.log('INSERT result:', { data: insertData, error: insertError });
 
-        if (!insertError) {
-          console.log('✅ INSERT successful!');
+        if (!insertError && insertData) {
+          console.log('✅ INSERT successful!', insertData);
           saveSuccess = true;
         } else {
-          throw insertError;
+          console.error('INSERT failed with error:', insertError);
+          throw insertError || new Error('INSERT returned no data');
         }
       } catch (insertErr) {
         console.log('INSERT failed, trying UPDATE...', insertErr.message);
@@ -248,11 +256,12 @@ const Profile = () => {
 
           console.log('UPDATE result:', { data: updateData, error: updateError });
 
-          if (!updateError) {
-            console.log('✅ UPDATE successful!');
+          if (!updateError && updateData) {
+            console.log('✅ UPDATE successful!', updateData);
             saveSuccess = true;
           } else {
-            finalError = updateError;
+            console.error('UPDATE failed with error:', updateError);
+            finalError = updateError || new Error('UPDATE returned no data');
           }
         } catch (updateErr) {
           console.log('UPDATE also failed:', updateErr.message);
