@@ -13,10 +13,11 @@ function ReportIssue() {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [location, setLocation] = useState("");
   const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
-  const [ticketNumber, setTicketNumber] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
-  
+  const [showLocationQuestion, setShowLocationQuestion] = useState(true);
+  const [isAtLocation, setIsAtLocation] = useState(null);
+  const [ticketNumber, setTicketNumber] = useState("");
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -34,6 +35,18 @@ function ReportIssue() {
     setImages(files);
     const previews = files.map((file) => URL.createObjectURL(file));
     setImagePreviews(previews);
+  };
+
+  // Handle location question responses
+  const handleLocationResponse = (response) => {
+    setIsAtLocation(response);
+    setShowLocationQuestion(false);
+    
+    if (response) {
+      // User is at location, use GPS
+      detectLocation();
+    }
+    // If not at location, they'll enter manually
   };
 
   // Simple location detection using GPS for all devices
@@ -274,22 +287,77 @@ function ReportIssue() {
           </div>
 
           <label htmlFor="location">Location *</label>
-          <div className="location-inputs">
-            <input
-              id="location"
-              type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="Enter location or detect automatically"
-              required
-            />
-            <button type="button" onClick={detectLocation} disabled={isDetectingLocation}>
-              {isDetectingLocation ? "🔍 Getting Location..." : "📍 Detect My Location"}
-            </button>
-            <div className="location-help">
-              <small>💡 Allow location access when prompted for automatic detection</small>
+          
+          {showLocationQuestion ? (
+            <div className="location-question">
+              <div className="question-text">
+                <p>📍 Are you currently at the location where the issue is occurring?</p>
+              </div>
+              <div className="question-buttons">
+                <button 
+                  type="button" 
+                  className="location-btn yes-btn"
+                  onClick={() => handleLocationResponse(true)}
+                >
+                  ✅ Yes, I'm here
+                </button>
+                <button 
+                  type="button" 
+                  className="location-btn no-btn"
+                  onClick={() => handleLocationResponse(false)}
+                >
+                  ❌ No, I'm elsewhere
+                </button>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="location-inputs">
+              {isAtLocation ? (
+                <>
+                  <input
+                    id="location"
+                    type="text"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder="Location will be detected automatically"
+                    required
+                    readOnly={isDetectingLocation}
+                  />
+                  <button type="button" onClick={detectLocation} disabled={isDetectingLocation}>
+                    {isDetectingLocation ? "🔍 Getting Location..." : "📍 Detect My Location"}
+                  </button>
+                  <div className="location-help">
+                    <small>💡 Allow location access when prompted</small>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <input
+                    id="location"
+                    type="text"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder="Enter the location where the issue is occurring"
+                    required
+                  />
+                  <div className="location-help">
+                    <small>💡 Please enter the exact address or landmark</small>
+                  </div>
+                </>
+              )}
+              <button 
+                type="button" 
+                className="change-location-btn"
+                onClick={() => {
+                  setShowLocationQuestion(true);
+                  setIsAtLocation(null);
+                  setLocation("");
+                }}
+              >
+                🔄 Change Location Method
+              </button>
+            </div>
+          )}
 
           <button type="submit" className="submit-btn" disabled={isSubmitting}>
             {isSubmitting ? 'Submitting...' : 'Submit Issue'}

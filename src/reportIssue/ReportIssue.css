@@ -441,6 +441,79 @@
   font-size: 0.8rem;
 }
 
+/* Location Question Styles */
+.location-question {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 15px 0;
+  text-align: center;
+}
+
+.question-text p {
+  font-size: 1.1rem;
+  color: #495057;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.question-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.location-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+}
+
+.yes-btn {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+}
+
+.yes-btn:hover {
+  background: linear-gradient(135deg, #218838, #1aa085);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.no-btn {
+  background: linear-gradient(135deg, #6c757d, #8e9297);
+  color: white;
+}
+
+.no-btn:hover {
+  background: linear-gradient(135deg, #5a6268, #7a8185);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.change-location-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.change-location-btn:hover {
+  background: #5a6268;
+}
+
 /* Mobile responsive location button */
 @media (max-width: 768px) {
   .location-inputs button {
@@ -450,5 +523,23 @@
   
   .location-help {
     margin-top: 8px;
+  }
+
+  .question-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .location-btn {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .location-question {
+    padding: 15px;
+  }
+
+  .question-text p {
+    font-size: 1rem;
   }
 }
