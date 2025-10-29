@@ -97,6 +97,25 @@
   border-color: rgba(255, 255, 255, 0.5);
 }
 
+.logout-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.logout-btn:disabled:hover {
+  background-color: transparent;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.profile-menu-item:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.profile-menu-item:disabled:hover {
+  background-color: transparent;
+}
+
 .navbar-toggle {
   display: none;
   color: white;

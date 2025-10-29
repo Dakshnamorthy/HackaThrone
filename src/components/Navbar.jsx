@@ -7,6 +7,7 @@ import { useAuth } from '../context/SimpleAuthContext';
 function Navbar() {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { user, userRole, signOut } = useAuth();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
@@ -28,10 +29,23 @@ function Navbar() {
   }, []);
 
   const handleLogout = async () => {
-    await signOut();
-    setShowProfileDropdown(false);
-    setShowMobileMenu(false);
-    navigate("/login");
+    if (isLoggingOut) return; // Prevent multiple clicks
+    
+    setIsLoggingOut(true);
+    try {
+      await signOut();
+      setShowProfileDropdown(false);
+      setShowMobileMenu(false);
+      navigate("/login");
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force logout even if there's an error
+      setShowProfileDropdown(false);
+      setShowMobileMenu(false);
+      navigate("/login");
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   const toggleMobileMenu = () => {
@@ -77,9 +91,9 @@ function Navbar() {
                       </div>
                     </div>
                     <div className="profile-divider"></div>
-                    <button className="profile-menu-item" onClick={handleLogout}>
+                    <button className="profile-menu-item" onClick={handleLogout} disabled={isLoggingOut}>
                       <LogOut size={16} />
-                      Logout
+                      {isLoggingOut ? 'Logging out...' : 'Logout'}
                     </button>
                   </div>
                 )}
@@ -131,9 +145,9 @@ function Navbar() {
                     </div>
                   </div>
                   <div className="profile-divider"></div>
-                  <button className="profile-menu-item" onClick={handleLogout}>
+                  <button className="profile-menu-item" onClick={handleLogout} disabled={isLoggingOut}>
                     <LogOut size={16} />
-                    Logout
+                    {isLoggingOut ? 'Logging out...' : 'Logout'}
                   </button>
                 </div>
               )}

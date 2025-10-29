@@ -22,18 +22,29 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       
       try {
+        // First check localStorage for faster initial load
+        const savedUser = localStorage.getItem('civicapp_user');
+        const savedRole = localStorage.getItem('civicapp_role');
+        
+        if (savedUser && savedRole) {
+          setUser(JSON.parse(savedUser));
+          setUserRole(savedRole);
+          setLoading(false); // Set loading false immediately for cached data
+        }
+
+        // Then verify with Supabase session
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          await setUserData(session.user);
-        } else {
-          // Check for government staff session in localStorage
-          const savedUser = localStorage.getItem('civicapp_user');
-          const savedRole = localStorage.getItem('civicapp_role');
-          
-          if (savedUser && savedRole === 'government') {
-            setUser(JSON.parse(savedUser));
-            setUserRole(savedRole);
+          // Only fetch user data if we don't have cached data or if user ID changed
+          if (!savedUser || JSON.parse(savedUser).id !== session.user.id) {
+            await setUserData(session.user);
           }
+        } else if (savedRole !== 'government') {
+          // Clear cache if no session and not government user
+          localStorage.removeItem('civicapp_user');
+          localStorage.removeItem('civicapp_role');
+          setUser(null);
+          setUserRole(null);
         }
       } catch (error) {
         console.error('Session check error:', error);
@@ -63,38 +74,38 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const setUserData = async (authUser) => {
+    // Set user data immediately with auth info for faster UI response
+    const immediateUserData = {
+      ...authUser,
+      name: authUser.user_metadata?.name || 'User'
+    };
+    
+    setUser(immediateUserData);
+    setUserRole('citizen');
+    localStorage.setItem('civicapp_user', JSON.stringify(immediateUserData));
+    localStorage.setItem('civicapp_role', 'citizen');
+
+    // Fetch additional citizen data in background (non-blocking)
     try {
-      // Get citizen data from our database with minimal fields for speed
       const { data: citizenData } = await supabase
         .from('citizens')
         .select('name')
         .eq('id', authUser.id)
         .single();
 
-      // Combine auth user with citizen data
-      const userData = {
-        ...authUser,
-        name: citizenData?.name || authUser.user_metadata?.name || 'User'
-      };
-
-      setUser(userData);
-      setUserRole('citizen');
-      
-      // Save to localStorage
-      localStorage.setItem('civicapp_user', JSON.stringify(userData));
-      localStorage.setItem('civicapp_role', 'citizen');
+      if (citizenData?.name && citizenData.name !== immediateUserData.name) {
+        // Update with database name if different
+        const updatedUserData = {
+          ...authUser,
+          name: citizenData.name
+        };
+        
+        setUser(updatedUserData);
+        localStorage.setItem('civicapp_user', JSON.stringify(updatedUserData));
+      }
     } catch (error) {
-      console.error('Error fetching citizen data:', error);
-      // Fallback to auth user data only
-      const userData = {
-        ...authUser,
-        name: authUser.user_metadata?.name || 'User'
-      };
-      
-      setUser(userData);
-      setUserRole('citizen');
-      localStorage.setItem('civicapp_user', JSON.stringify(userData));
-      localStorage.setItem('civicapp_role', 'citizen');
+      console.error('Error fetching citizen data (non-blocking):', error);
+      // Continue with immediate data - don't block the login
     }
   };
 
@@ -171,14 +182,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Government staff login
+  // Government staff login - optimized for speed
   const signInGovernment = async (uniqueId, password) => {
     try {
       setLoading(true);
       
+      // Select only essential fields for faster query
       const { data: staffData, error } = await supabase
         .from('government_staff')
-        .select('*')
+        .select('id, unique_id, name, department, role')
         .eq('unique_id', uniqueId)
         .eq('password', password)
         .single();
@@ -187,11 +199,11 @@ export const AuthProvider = ({ children }) => {
         throw new Error('Invalid staff ID or password');
       }
 
-      // Set user session
+      // Set user session immediately
       setUser(staffData);
       setUserRole('government');
       
-      // Save to localStorage
+      // Save to localStorage for faster future loads
       localStorage.setItem('civicapp_user', JSON.stringify(staffData));
       localStorage.setItem('civicapp_role', 'government');
 
@@ -205,14 +217,20 @@ export const AuthProvider = ({ children }) => {
 
   // Sign out
   const signOut = async () => {
-    // Sign out from Supabase Auth (for citizens)
-    await supabase.auth.signOut();
+    try {
+      // Sign out from Supabase Auth (for citizens)
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Supabase signOut error:', error);
+      // Continue with local cleanup even if Supabase signOut fails
+    }
     
-    // Clear local state
+    // Always clear local state regardless of Supabase signOut result
     setUser(null);
     setUserRole(null);
     localStorage.removeItem('civicapp_user');
     localStorage.removeItem('civicapp_role');
+    
     return { error: null };
   };
 

@@ -27,6 +27,20 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    
+    // Validate inputs first (fast)
+    if (loginType === "citizen") {
+      if (!email || !password) {
+        setError("Please enter both email and password.");
+        return;
+      }
+    } else {
+      if (!uniqueId || !password) {
+        setError("Please enter both ID and password.");
+        return;
+      }
+    }
+
     setLoading(true);
     setError("");
 
@@ -34,18 +48,8 @@ function Login() {
       let result;
       
       if (loginType === "citizen") {
-        if (!email || !password) {
-          setError("Please enter both email and password.");
-          setLoading(false);
-          return;
-        }
         result = await signInCitizen(email, password);
       } else {
-        if (!uniqueId || !password) {
-          setError("Please enter both ID and password.");
-          setLoading(false);
-          return;
-        }
         result = await signInGovernment(uniqueId, password);
       }
 
@@ -53,17 +57,15 @@ function Login() {
         throw new Error(result.error.message);
       }
 
-      // Redirect based on user type
-      if (loginType === "citizen") {
-        navigate("/");
-      } else {
-        navigate("/gov-dashboard");
-      }
+      // Navigate immediately after successful login
+      const redirectPath = loginType === "citizen" ? "/" : "/gov-dashboard";
+      navigate(redirectPath);
+      
     } catch (error) {
       setError(error.message);
-    } finally {
       setLoading(false);
     }
+    // Don't set loading false on success - let navigation handle it
   };
 
   return (

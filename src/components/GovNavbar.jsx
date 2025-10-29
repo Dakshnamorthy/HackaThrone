@@ -6,12 +6,24 @@ import './Navbar.css';
 
 const GovNavbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await signOut();
-    navigate('/login');
+    if (isLoggingOut) return; // Prevent multiple clicks
+    
+    setIsLoggingOut(true);
+    try {
+      await signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force navigation even if signOut fails
+      navigate('/login');
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   const toggleMenu = () => {
@@ -54,9 +66,9 @@ const GovNavbar = () => {
           {user ? (
             <div className="navbar-user">
               <span className="user-name">{user.name}</span>
-              <button onClick={handleLogout} className="logout-btn">
+              <button onClick={handleLogout} className="logout-btn" disabled={isLoggingOut}>
                 <LogOut size={18} />
-                Logout
+                {isLoggingOut ? 'Logging out...' : 'Logout'}
               </button>
             </div>
           ) : (
