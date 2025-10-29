@@ -451,3 +451,80 @@
     width: 100%;
   }
 }
+
+/* Action buttons styling */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.close-issue-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+}
+
+.close-issue-btn:hover {
+  background-color: #45a049;
+}
+
+.close-issue-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Modal actions styling */
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.modal-actions .close-issue-btn {
+  background-color: #4caf50;
+  padding: 10px 20px;
+  font-size: 1rem;
+}
+
+.modal-actions .close-btn {
+  background-color: #6c757d;
+}
+
+/* Status styling for resolved/waiting */
+.status.resolved {
+  background-color: #9c27b0 !important;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .action-buttons {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .close-issue-btn {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+  
+  .modal-actions .close-issue-btn,
+  .modal-actions .close-btn {
+    width: 100%;
+  }
+}

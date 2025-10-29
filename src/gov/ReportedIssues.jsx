@@ -33,10 +33,11 @@ const ReportedIssues = () => {
 
   const fetchIssues = async () => {
     try {
-      // First try to fetch issues without citizen join to see if basic query works
+      // Fetch issues excluding closed ones (they are removed from both sides)
       const { data, error } = await supabase
         .from('issues')
         .select('*')
+        .neq('status', 'Closed') // Filter out closed issues
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -624,7 +625,8 @@ const ReportedIssues = () => {
     switch (status) {
       case 'Pending': return '#ff9800';
       case 'In Progress': return '#2196f3';
-      case 'Resolved': return '#4caf50';
+      case 'Resolved': return '#9c27b0'; // Purple for waiting for closure
+      case 'Closed': return '#4caf50'; // Green for fully closed
       default: return '#757575';
     }
   };
@@ -642,7 +644,8 @@ const ReportedIssues = () => {
     switch (status) {
       case 'Pending': return Clock;
       case 'In Progress': return AlertTriangle;
-      case 'Resolved': return CheckCircle;
+      case 'Resolved': return Clock; // Clock for waiting for closure
+      case 'Closed': return CheckCircle; // Check for fully closed
       default: return Clock;
     }
   };
@@ -693,7 +696,8 @@ const ReportedIssues = () => {
               <option value="All">All Status</option>
               <option value="Pending">Pending</option>
               <option value="In Progress">In Progress</option>
-              <option value="Resolved">Resolved</option>
+              <option value="Resolved">Waiting for Closure</option>
+              <option value="Closed">Closed</option>
             </select>
 
             <select
@@ -731,7 +735,13 @@ const ReportedIssues = () => {
             <span className="stat-number">
               {filteredIssues.filter(issue => issue.status === 'Resolved').length}
             </span>
-            <span className="stat-label">Resolved</span>
+            <span className="stat-label">Waiting Closure</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-number">
+              {filteredIssues.filter(issue => issue.status === 'Closed').length}
+            </span>
+            <span className="stat-label">Closed</span>
           </div>
         </div>
 
@@ -758,7 +768,7 @@ const ReportedIssues = () => {
                         style={{ backgroundColor: getStatusColor(issue.status) }}
                       >
                         <StatusIcon size={14} />
-                        {issue.status}
+                        {issue.status === 'Resolved' ? 'Waiting for Closure' : issue.status}
                       </span>
                     </div>
                   </div>

@@ -122,3 +122,96 @@
     padding: 20px 10px;
   }
 }
+
+/* Map Legend Styles */
+.map-legend {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.map-legend h3 {
+  margin: 0 0 15px 0;
+  color: #004d40;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.legend-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+}
+
+.legend-item img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.legend-item span {
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.issues-count {
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+  font-weight: 500;
+}
+
+.no-issues-message {
+  flex-direction: column;
+  text-align: center;
+}
+
+.no-issues-message p {
+  margin: 5px 0;
+}
+
+.no-issues-message p:first-child {
+  font-weight: 500;
+  color: #555;
+}
+
+.no-issues-message p:last-child {
+  font-size: 1rem;
+  color: #777;
+}
+
+/* Responsive legend */
+@media (max-width: 768px) {
+  .map-legend {
+    margin: 15px;
+    padding: 15px;
+  }
+  
+  .legend-items {
+    gap: 8px;
+  }
+  
+  .legend-item {
+    padding: 3px 0;
+  }
+  
+  .legend-item span {
+    font-size: 0.9rem;
+  }
+}

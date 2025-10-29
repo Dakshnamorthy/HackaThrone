@@ -7,28 +7,6 @@ import { useAuth } from '../context/SimpleAuthContext';
 import { supabase } from '../../supabaseClient';
 import './Map.css';
 
-const mockReports = [
-  {
-    id: "CIV-1001",
-    type: "Pothole",
-    description: "Large pothole near Mission Street causing traffic slowdown.",
-    date: "2025-10-18",
-    submittedBy: "User123",
-    location: [11.9405, 79.8281], // Mission Street
-    status: "In Progress",
-    images: ["https://via.placeholder.com/100"]
-  },
-  { 
-    id: "CIV-1002",
-    type: "Garbage",
-    description: "Overflowing garbage bins near Rock Beach.",
-    date: "2025-10-17",
-    submittedBy: "User456",
-    location: [11.9360, 79.8350], // Rock Beach / White Town
-    status: "Resolved",
-    images: ["https://via.placeholder.com/100"]
-  }
-];
 
 
 // Custom icon colors based on issue status and priority
@@ -36,8 +14,10 @@ const getIcon = (status, priority) => {
   let iconUrl;
   
   // Choose icon color based on status
-  if (status === 'Resolved') {
-    iconUrl = "https://cdn-icons-png.flaticon.com/512/2776/2776067.png"; // green pin
+  if (status === 'Closed') {
+    iconUrl = "https://cdn-icons-png.flaticon.com/512/2776/2776067.png"; // green pin for closed
+  } else if (status === 'Resolved') {
+    iconUrl = "https://cdn-icons-png.flaticon.com/512/2776/2776043.png"; // purple pin for waiting for closure
   } else if (status === 'In Progress') {
     iconUrl = "https://cdn-icons-png.flaticon.com/512/684/684908.png"; // orange/red pin
   } else if (priority === 'High') {
@@ -82,7 +62,8 @@ function MapPage() {
           citizens (name, email)
         `)
         .not('latitude', 'is', null)
-        .not('longitude', 'is', null);
+        .not('longitude', 'is', null)
+        .neq('status', 'Closed'); // Exclude closed issues
 
       if (error) throw error;
       
@@ -96,13 +77,8 @@ function MapPage() {
       setIssues(validIssues);
     } catch (error) {
       console.error('Error fetching issues:', error);
-      // Fallback to mock data if database fails
-      setIssues(mockReports.map(report => ({
-        ...report,
-        latitude: report.location[0],
-        longitude: report.location[1],
-        citizens: { name: report.submittedBy }
-      })));
+      // Set empty array if database fails
+      setIssues([]);
     } finally {
       setLoading(false);
     }
@@ -128,9 +104,11 @@ function MapPage() {
         icon: getIcon(issue.status, issue.priority) 
       }).addTo(map);
 
-      const statusColor = issue.status === 'Resolved' ? '#4caf50' : 
-                         issue.status === 'In Progress' ? '#ff9800' : '#f44336';
+      const statusColor = issue.status === 'Resolved' ? '#9c27b0' : // Purple for waiting for closure
+                         issue.status === 'In Progress' ? '#ff9800' : 
+                         issue.status === 'Closed' ? '#4caf50' : '#f44336';
 
+      const statusDisplay = issue.status === 'Resolved' ? 'Waiting for Closure' : issue.status;
       const formattedDate = new Date(issue.created_at).toLocaleDateString();
 
       marker.bindPopup(`
@@ -139,7 +117,7 @@ function MapPage() {
           <p style="margin: 4px 0; font-size: 14px; color: #333;"><strong>ID:</strong> ${issue.issue_id}</p>
           <p style="margin: 4px 0; font-size: 14px; color: #333;"><strong>Status:</strong> 
             <span style="color: ${statusColor};">
-              ${issue.status}
+              ${statusDisplay}
             </span>
           </p>
           <p style="margin: 4px 0; font-size: 14px; color: #333;"><strong>Priority:</strong> ${issue.priority}</p>
@@ -182,9 +160,30 @@ function MapPage() {
         ) : (
           <div id="city-map"></div>
         )}
+        {!loading && (
+          <div className="map-legend">
+            <h3>Map Legend</h3>
+            <div className="legend-items">
+              <div className="legend-item">
+                <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Pending/In Progress" style={{width: '20px', height: '20px'}} />
+                <span>Pending / In Progress</span>
+              </div>
+              <div className="legend-item">
+                <img src="https://cdn-icons-png.flaticon.com/512/2776/2776043.png" alt="Waiting for Closure" style={{width: '20px', height: '20px'}} />
+                <span>Waiting for Closure</span>
+              </div>
+              <div className="legend-item">
+                <img src="https://cdn-icons-png.flaticon.com/512/2776/2776067.png" alt="Default" style={{width: '20px', height: '20px'}} />
+                <span>Low Priority</span>
+              </div>
+            </div>
+            <p className="issues-count">Showing {issues.length} active issues</p>
+          </div>
+        )}
         {!loading && issues.length === 0 && (
           <div className="no-issues-message">
-            <p>No issues with location data found.</p>
+            <p>No active issues with location data found.</p>
+            <p>Issues will appear here once they are reported with GPS coordinates.</p>
           </div>
         )}
       </div>

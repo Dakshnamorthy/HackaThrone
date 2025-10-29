@@ -35,6 +35,7 @@ function ComplaintStatus() {
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [closingIssue, setClosingIssue] = useState(null);
 
   // Fetch user's issues from database
   const fetchUserIssues = async () => {
@@ -48,6 +49,7 @@ function ComplaintStatus() {
         .from('issues')
         .select('*')
         .eq('citizen_id', user.id)
+        .neq('status', 'Closed') // Filter out closed issues
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -55,6 +57,7 @@ function ComplaintStatus() {
       // Transform data to match component expectations
       const transformedData = data.map(issue => ({
         id: issue.issue_id,
+        dbId: issue.id, // Store database ID for operations
         type: issue.type,
         submissionDate: new Date(issue.created_at).toLocaleDateString(),
         status: issue.status,
@@ -85,6 +88,53 @@ function ComplaintStatus() {
 
   const closeDetails = () => {
     setSelectedComplaint(null);
+  };
+
+  const closeIssue = async (issueId, issueDbId) => {
+    if (!confirm('Are you sure you want to close this issue? This action cannot be undone and the issue will be removed from your list.')) {
+      return;
+    }
+
+    try {
+      setClosingIssue(issueId);
+      console.log('Closing issue:', { issueId, issueDbId });
+
+      // Update the issue status to 'Closed' in the database
+      const { data, error } = await supabase
+        .from('issues')
+        .update({ 
+          status: 'Closed',
+          closed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('issue_id', issueId)
+        .select('*');
+
+      if (error) {
+        console.error('Database update error:', error);
+        throw error;
+      }
+
+      console.log('Issue closed successfully:', data);
+
+      // Remove the issue from local state (it will be filtered out)
+      setComplaints(prevComplaints => 
+        prevComplaints.filter(complaint => complaint.id !== issueId)
+      );
+
+      // Close modal if this issue was selected
+      if (selectedComplaint && selectedComplaint.id === issueId) {
+        setSelectedComplaint(null);
+      }
+
+      alert('✅ Issue closed successfully!\n\nThe issue has been marked as closed and removed from your list. Thank you for using our service!');
+
+    } catch (error) {
+      console.error('Error closing issue:', error);
+      alert(`❌ Failed to close issue: ${error.message}\n\nPlease try again or contact support if the problem persists.`);
+    } finally {
+      setClosingIssue(null);
+    }
   };
 
   const statusSteps = ["Submitted", "In Progress", "Resolved", "Closed"];
@@ -129,11 +179,24 @@ function ComplaintStatus() {
                     <td>{complaint.id}</td>
                     <td>{complaint.type}</td>
                     <td>{complaint.submissionDate}</td>
-                    <td className={`status ${complaint.status.replace(" ", "").toLowerCase()}`}>{complaint.status}</td>
+                    <td className={`status ${complaint.status.replace(" ", "").toLowerCase()}`}>
+                      {complaint.status === 'Resolved' ? 'Waiting for Closure' : complaint.status}
+                    </td>
                     <td className={`priority ${complaint.priority?.toLowerCase()}`}>{complaint.priority}</td>
                     <td>{complaint.lastUpdated}</td>
                     <td>
-                      <button className="details-btn" onClick={() => openDetails(complaint)}>View Details</button>
+                      <div className="action-buttons">
+                        <button className="details-btn" onClick={() => openDetails(complaint)}>View Details</button>
+                        {complaint.status === 'Resolved' && (
+                          <button 
+                            className="close-issue-btn"
+                            onClick={() => closeIssue(complaint.id, complaint.dbId)}
+                            disabled={closingIssue === complaint.id}
+                          >
+                            {closingIssue === complaint.id ? 'Closing...' : 'Close Issue'}
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
               ))}
@@ -166,7 +229,18 @@ function ComplaintStatus() {
                 ))}
               </div>
 
-              <button className="close-btn" onClick={closeDetails}>Close</button>
+              <div className="modal-actions">
+                {selectedComplaint.status === 'Resolved' && (
+                  <button 
+                    className="close-issue-btn"
+                    onClick={() => closeIssue(selectedComplaint.id, selectedComplaint.dbId)}
+                    disabled={closingIssue === selectedComplaint.id}
+                  >
+                    {closingIssue === selectedComplaint.id ? 'Closing Issue...' : '✅ Close Issue'}
+                  </button>
+                )}
+                <button className="close-btn" onClick={closeDetails}>Close Details</button>
+              </div>
             </div>
           </div>
         )}
