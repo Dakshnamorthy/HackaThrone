@@ -67,12 +67,91 @@ function MapPage() {
 
       if (error) throw error;
       
-      // Filter out issues with invalid coordinates
-      const validIssues = (data || []).filter(issue => 
-        issue.latitude && issue.longitude && 
-        !isNaN(parseFloat(issue.latitude)) && 
-        !isNaN(parseFloat(issue.longitude))
+      // Filter and validate coordinates
+      const validIssues = (data || []).filter(issue => {
+        const lat = parseFloat(issue.latitude);
+        const lng = parseFloat(issue.longitude);
+        
+        // Check if coordinates are valid numbers and within reasonable bounds
+        const isValidLat = !isNaN(lat) && lat >= -90 && lat <= 90;
+        const isValidLng = !isNaN(lng) && lng >= -180 && lng <= 180;
+        
+        if (!isValidLat || !isValidLng) {
+          console.warn(`Invalid coordinates for issue ${issue.issue_id}:`, {
+            latitude: issue.latitude,
+            longitude: issue.longitude,
+            parsedLat: lat,
+            parsedLng: lng
+          });
+          return false;
+        }
+        
+        return true;
+      }).map(issue => {
+        let lat = parseFloat(issue.latitude);
+        let lng = parseFloat(issue.longitude);
+        
+        // Auto-fix swapped coordinates if detected
+        // If latitude is > 90 or < -90, coordinates are definitely swapped
+        if (lat > 90 || lat < -90) {
+          console.warn(`Auto-fixing swapped coordinates for issue ${issue.issue_id}`);
+          [lat, lng] = [lng, lat]; // Swap them
+        }
+        
+        // If coordinates seem to be outside reasonable bounds for your region,
+        // but would make sense if swapped, auto-fix them
+        const isLatOutOfBounds = lat < 6 || lat > 37;
+        const isLngOutOfBounds = lng < 68 || lng > 97;
+        const wouldBeValidIfSwapped = (lng >= 6 && lng <= 37) && (lat >= 68 && lat <= 97);
+        
+        if (isLatOutOfBounds && isLngOutOfBounds && wouldBeValidIfSwapped) {
+          console.warn(`Auto-fixing likely swapped coordinates for issue ${issue.issue_id}`);
+          [lat, lng] = [lng, lat]; // Swap them
+        }
+        
+        return {
+          ...issue,
+          latitude: lat,
+          longitude: lng
+        };
+      });
+      
+      console.log(`Found ${validIssues.length} issues with valid coordinates:`, 
+        validIssues.map(issue => ({
+          id: issue.issue_id,
+          lat: issue.latitude,
+          lng: issue.longitude,
+          location: issue.location,
+          // Check if coordinates are in reasonable range for India (rough bounds)
+          inIndia: (issue.latitude >= 6 && issue.latitude <= 37 && 
+                   issue.longitude >= 68 && issue.longitude <= 97)
+        }))
       );
+      
+      // Log any issues that might have swapped coordinates
+      validIssues.forEach(issue => {
+        const lat = issue.latitude;
+        const lng = issue.longitude;
+        
+        // Check if coordinates might be swapped (common mistake)
+        if (Math.abs(lng) < Math.abs(lat) && lat > 90) {
+          console.warn(`Possible swapped coordinates for issue ${issue.issue_id}:`, {
+            stored_lat: lat,
+            stored_lng: lng,
+            suggested_lat: lng,
+            suggested_lng: lat
+          });
+        }
+        
+        // Check if coordinates are outside expected region
+        if (lat < 6 || lat > 37 || lng < 68 || lng > 97) {
+          console.warn(`Coordinates outside India for issue ${issue.issue_id}:`, {
+            lat: lat,
+            lng: lng,
+            location: issue.location
+          });
+        }
+      });
       
       setIssues(validIssues);
     } catch (error) {
@@ -100,7 +179,17 @@ function MapPage() {
     const markers = [];
 
     issues.forEach((issue) => {
-      const marker = L.marker([parseFloat(issue.latitude), parseFloat(issue.longitude)], { 
+      const lat = issue.latitude;
+      const lng = issue.longitude;
+      
+      console.log(`Creating marker for issue ${issue.issue_id}:`, {
+        latitude: lat,
+        longitude: lng,
+        coordinates: [lat, lng],
+        location: issue.location
+      });
+      
+      const marker = L.marker([lat, lng], { 
         icon: getIcon(issue.status, issue.priority) 
       }).addTo(map);
 
@@ -125,6 +214,7 @@ function MapPage() {
           <p style="margin: 4px 0; font-size: 14px; color: #666;">${issue.description}</p>
           <p style="margin: 4px 0; font-size: 12px; color: #888;"><strong>Reported by:</strong> ${issue.citizens?.name || 'Anonymous'}</p>
           <p style="margin: 4px 0; font-size: 12px; color: #888;"><strong>Location:</strong> ${issue.location || 'Not specified'}</p>
+          <p style="margin: 4px 0; font-size: 11px; color: #999;"><strong>Coordinates:</strong> ${lat.toFixed(6)}, ${lng.toFixed(6)}</p>
           ${issue.images && Array.isArray(issue.images) && issue.images.length > 0 ? 
             `<img src="${issue.images[0]}" style="width: 100%; max-width: 180px; height: auto; margin-top: 8px; border-radius: 4px;" alt="Issue image" onerror="this.style.display='none'" />` 
             : ''
