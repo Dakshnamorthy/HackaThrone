@@ -701,3 +701,97 @@
   font-size: 1.1rem;
   margin: 0;
 }
+
+/* Photo Upload Styles */
+.photo-upload-field {
+  background-color: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 10px;
+}
+
+.photo-upload-field label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.photo-upload-field .required {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.photo-upload-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.photo-input {
+  display: none;
+}
+
+.photo-upload-label {
+  display: inline-block;
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 14px;
+  border: none;
+}
+
+.photo-upload-label:hover {
+  background-color: #0056b3;
+}
+
+.photo-selected {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.photo-placeholder {
+  color: white;
+}
+
+.remove-photo-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.remove-photo-btn:hover {
+  background-color: #c82333;
+}
+
+.photo-help-text {
+  color: #6c757d;
+  font-size: 12px;
+  margin-top: 5px;
+  display: block;
+  font-style: italic;
+}
+
+.btn-save.disabled {
+  background-color: #6c757d !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+}
+
+.btn-save.disabled:hover {
+  background-color: #6c757d !important;
+}

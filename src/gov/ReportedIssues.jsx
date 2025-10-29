@@ -20,6 +20,8 @@ const ReportedIssues = () => {
   const [showingHistory, setShowingHistory] = useState(null); // Track which issue's history is being shown
   const [issueHistory, setIssueHistory] = useState([]); // Store issue change history
   const [predictingPriority, setPredictingPriority] = useState(null); // Track which issue is getting priority prediction
+  const [resolutionPhoto, setResolutionPhoto] = useState(null); // Store resolution photo
+  const [photoRequired, setPhotoRequired] = useState(false); // Track if photo is required for current edit
 
   useEffect(() => {
     fetchIssues();
@@ -160,6 +162,27 @@ const ReportedIssues = () => {
     }
   };
 
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+      if (!validTypes.includes(file.type)) {
+        alert('Please select a valid image file (JPEG, PNG, GIF)');
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB');
+        return;
+      }
+
+      setResolutionPhoto(file);
+      console.log('Resolution photo uploaded:', file.name);
+    }
+  };
+
   const startEditing = (issue) => {
     console.log('Starting edit for issue:', issue);
     
@@ -172,15 +195,42 @@ const ReportedIssues = () => {
     
     console.log('Setting initial edit values:', initialValues);
     setEditValues(initialValues);
+    
+    // Reset photo states
+    setResolutionPhoto(null);
+    setPhotoRequired(false);
   };
 
   const cancelEditing = () => {
     setEditingIssue(null);
     setEditValues({});
+    setResolutionPhoto(null);
+    setPhotoRequired(false);
+  };
+
+  const handleStatusChange = (newStatus) => {
+    const currentIssue = issues.find(issue => issue.id === editingIssue);
+    const isChangingToResolved = currentIssue?.status === 'In Progress' && newStatus === 'Resolved';
+    
+    setEditValues({...editValues, status: newStatus});
+    
+    if (isChangingToResolved) {
+      setPhotoRequired(true);
+      console.log('Photo required for resolving issue');
+    } else {
+      setPhotoRequired(false);
+      setResolutionPhoto(null);
+    }
   };
 
   const saveChanges = async (issueId) => {
     try {
+      // Check if photo is required but not provided
+      if (photoRequired && !resolutionPhoto) {
+        alert('❌ Resolution Photo Required\n\nPlease upload a photo showing the resolved issue before saving changes.');
+        return;
+      }
+
       setUpdatingStatus(issueId);
       
       // Get current issue data to compare changes
@@ -736,7 +786,7 @@ const ReportedIssues = () => {
                             <label>Status:</label>
                             <select
                               value={editValues.status}
-                              onChange={(e) => setEditValues({...editValues, status: e.target.value})}
+                              onChange={(e) => handleStatusChange(e.target.value)}
                               disabled={updatingStatus === issue.id}
                             >
                               <option value="Pending">Pending</option>
@@ -768,6 +818,42 @@ const ReportedIssues = () => {
                               disabled={updatingStatus === issue.id}
                             />
                           </div>
+
+                          {photoRequired && (
+                            <div className="edit-field photo-upload-field">
+                              <label>Resolution Photo: <span className="required">*</span></label>
+                              <div className="photo-upload-container">
+                                <input
+                                  type="file"
+                                  id={`photo-upload-${issue.id}`}
+                                  accept="image/*"
+                                  onChange={handlePhotoUpload}
+                                  disabled={updatingStatus === issue.id}
+                                  className="photo-input"
+                                />
+                                <label htmlFor={`photo-upload-${issue.id}`} className="photo-upload-label">
+                                  {resolutionPhoto ? (
+                                    <span className="photo-selected">📷 {resolutionPhoto.name}</span>
+                                  ) : (
+                                    <span className="photo-placeholder">📷 Upload Resolution Photo</span>
+                                  )}
+                                </label>
+                                {resolutionPhoto && (
+                                  <button
+                                    type="button"
+                                    className="remove-photo-btn"
+                                    onClick={() => setResolutionPhoto(null)}
+                                    disabled={updatingStatus === issue.id}
+                                  >
+                                    ✕
+                                  </button>
+                                )}
+                              </div>
+                              <small className="photo-help-text">
+                                📸 Required: Upload a photo showing the resolved issue
+                              </small>
+                            </div>
+                          )}
                         </div>
                         
                         <div className="edit-actions">
@@ -776,10 +862,12 @@ const ReportedIssues = () => {
                           ) : (
                             <>
                               <button 
-                                className="btn-save"
+                                className={`btn-save ${photoRequired && !resolutionPhoto ? 'disabled' : ''}`}
                                 onClick={() => saveChanges(issue.id)}
+                                disabled={photoRequired && !resolutionPhoto}
+                                title={photoRequired && !resolutionPhoto ? 'Please upload a resolution photo first' : ''}
                               >
-                                Save Changes
+                                {photoRequired && !resolutionPhoto ? 'Photo Required' : 'Save Changes'}
                               </button>
                               <button 
                                 className="btn-cancel"
