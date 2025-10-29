@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }) => {
           setUserRole(null);
         }
       } catch (error) {
-        console.error('Session check error:', error);
+        // Session check failed silently
       } finally {
         setLoading(false);
         setInitialLoad(false);
@@ -107,7 +107,6 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('civicapp_user', JSON.stringify(updatedUserData));
       }
     } catch (error) {
-      console.error('Error fetching citizen data (non-blocking):', error);
       // Continue with immediate data - don't block the login
     }
   };
@@ -143,7 +142,6 @@ export const AuthProvider = ({ children }) => {
           }]);
 
         if (citizenError) {
-          console.warn('Could not create citizen record:', citizenError);
           // Don't fail the signup if citizen record creation fails
         }
       }
@@ -194,41 +192,46 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+
   // Government staff login - optimized for speed
   const signInGovernment = async (uniqueId, password) => {
     try {
       setLoading(true);
       
-      // Add timeout to prevent hanging
-      const loginPromise = supabase
+      const result = await supabase
         .from('government_staff')
-        .select('id, unique_id, name, department, role')
+        .select('id, unique_id, name, department, role, password')
         .eq('unique_id', uniqueId)
-        .eq('password', password)
         .single();
       
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Login timeout - please try again')), 8000)
-      );
-      
-      const { data: staffData, error } = await Promise.race([
-        loginPromise,
-        timeoutPromise
-      ]);
+      const staffData = result.data;
+      const error = result.error;
 
-      if (error || !staffData) {
-        throw new Error('Invalid staff ID or password');
+      if (error) {
+        throw new Error(`Database connection failed: ${error.message || 'Please check your internet connection'}`);
       }
 
-      // Set user session immediately
-      setUser(staffData);
+      if (!staffData) {
+        throw new Error('Invalid Staff ID - no matching record found');
+      }
+
+      // Verify password locally
+      if (staffData.password !== password) {
+        throw new Error('Invalid password');
+      }
+
+      // Remove password from stored data for security
+      const { password: _, ...userDataWithoutPassword } = staffData;
+
+      // Set user session immediately (without password)
+      setUser(userDataWithoutPassword);
       setUserRole('government');
       
-      // Save to localStorage for faster future loads
-      localStorage.setItem('civicapp_user', JSON.stringify(staffData));
+      // Save to localStorage for faster future loads (without password)
+      localStorage.setItem('civicapp_user', JSON.stringify(userDataWithoutPassword));
       localStorage.setItem('civicapp_role', 'government');
 
-      return { data: staffData, error: null };
+      return { data: userDataWithoutPassword, error: null };
     } catch (error) {
       return { data: null, error };
     } finally {
@@ -245,8 +248,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('civicapp_role');
     
     // Sign out from Supabase in background (don't wait for it)
-    supabase.auth.signOut().catch(error => {
-      console.error('Supabase signOut error (non-blocking):', error);
+    supabase.auth.signOut().catch(() => {
+      // Ignore signOut errors
     });
     
     return { error: null };
@@ -312,7 +315,7 @@ export const AuthProvider = ({ children }) => {
     signInGovernment,
     signOut,
     verifyOTP,
-    resendOTP
+    resendOTP,
   };
 
   return (

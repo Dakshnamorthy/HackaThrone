@@ -13,7 +13,6 @@ import ReportedIssues from "./gov/ReportedIssues"
 import StaffManagement from "./gov/StaffManagement"
 import Analytics from "./gov/Analytics"
 import OTPVerification from "./otp/OTPVerification"
-import LoginDebug from "./components/LoginDebug"
 
 
 function App() {
@@ -37,7 +36,6 @@ function App() {
           <Route path="/staff-management" element={<StaffManagement />} />
           <Route path="/analytics" element={<Analytics />} />
         </Routes>
-        <LoginDebug />
       </BrowserRouter>
     </AuthProvider>
   )
