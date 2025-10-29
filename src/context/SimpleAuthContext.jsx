@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [userRole, setUserRole] = useState(null); // 'citizen' or 'government'
   const [loading, setLoading] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(true);
 
   useEffect(() => {
     // Check active Supabase Auth session
@@ -30,6 +31,7 @@ export const AuthProvider = ({ children }) => {
           setUser(JSON.parse(savedUser));
           setUserRole(savedRole);
           setLoading(false); // Set loading false immediately for cached data
+          setInitialLoad(false); // Mark initial load complete
         }
 
         // Then verify with Supabase session
@@ -50,6 +52,7 @@ export const AuthProvider = ({ children }) => {
         console.error('Session check error:', error);
       } finally {
         setLoading(false);
+        setInitialLoad(false);
       }
     };
 
@@ -153,16 +156,25 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Citizen login with Supabase Auth
+  // Citizen login with Supabase Auth - optimized for speed
   const signInCitizen = async (email, password) => {
     try {
       setLoading(true);
       
-      // Use Supabase Auth login
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      // Add timeout to prevent hanging
+      const loginPromise = supabase.auth.signInWithPassword({
         email,
         password
       });
+      
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Login timeout - please try again')), 10000)
+      );
+      
+      const { data: authData, error: authError } = await Promise.race([
+        loginPromise,
+        timeoutPromise
+      ]);
 
       if (authError) throw authError;
 
@@ -187,13 +199,22 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       
-      // Select only essential fields for faster query
-      const { data: staffData, error } = await supabase
+      // Add timeout to prevent hanging
+      const loginPromise = supabase
         .from('government_staff')
         .select('id, unique_id, name, department, role')
         .eq('unique_id', uniqueId)
         .eq('password', password)
         .single();
+      
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Login timeout - please try again')), 8000)
+      );
+      
+      const { data: staffData, error } = await Promise.race([
+        loginPromise,
+        timeoutPromise
+      ]);
 
       if (error || !staffData) {
         throw new Error('Invalid staff ID or password');
@@ -215,21 +236,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Sign out
+  // Sign out - optimized for speed and reliability
   const signOut = async () => {
-    try {
-      // Sign out from Supabase Auth (for citizens)
-      await supabase.auth.signOut();
-    } catch (error) {
-      console.error('Supabase signOut error:', error);
-      // Continue with local cleanup even if Supabase signOut fails
-    }
-    
-    // Always clear local state regardless of Supabase signOut result
+    // Clear local state immediately for instant UI response
     setUser(null);
     setUserRole(null);
     localStorage.removeItem('civicapp_user');
     localStorage.removeItem('civicapp_role');
+    
+    // Sign out from Supabase in background (don't wait for it)
+    supabase.auth.signOut().catch(error => {
+      console.error('Supabase signOut error (non-blocking):', error);
+    });
     
     return { error: null };
   };

@@ -32,20 +32,19 @@ function Navbar() {
     if (isLoggingOut) return; // Prevent multiple clicks
     
     setIsLoggingOut(true);
+    setShowProfileDropdown(false);
+    setShowMobileMenu(false);
+    
     try {
+      // signOut is now instant, so this will complete quickly
       await signOut();
-      setShowProfileDropdown(false);
-      setShowMobileMenu(false);
-      navigate("/login");
     } catch (error) {
       console.error('Logout error:', error);
-      // Force logout even if there's an error
-      setShowProfileDropdown(false);
-      setShowMobileMenu(false);
-      navigate("/login");
-    } finally {
-      setIsLoggingOut(false);
     }
+    
+    // Always navigate regardless of signOut result
+    navigate("/login");
+    setIsLoggingOut(false);
   };
 
   const toggleMobileMenu = () => {

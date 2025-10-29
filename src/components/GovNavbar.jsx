@@ -14,16 +14,17 @@ const GovNavbar = () => {
     if (isLoggingOut) return; // Prevent multiple clicks
     
     setIsLoggingOut(true);
+    
     try {
+      // signOut is now instant, so this will complete quickly
       await signOut();
-      navigate('/login');
     } catch (error) {
       console.error('Logout error:', error);
-      // Force navigation even if signOut fails
-      navigate('/login');
-    } finally {
-      setIsLoggingOut(false);
     }
+    
+    // Always navigate regardless of signOut result
+    navigate('/login');
+    setIsLoggingOut(false);
   };
 
   const toggleMenu = () => {
