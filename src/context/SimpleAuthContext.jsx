@@ -200,7 +200,7 @@ export const AuthProvider = ({ children }) => {
       
       const result = await supabase
         .from('government_staff')
-        .select('id, unique_id, name, department, role, password')
+        .select('id, unique_id, password')
         .eq('unique_id', uniqueId)
         .single();
       
@@ -220,18 +220,23 @@ export const AuthProvider = ({ children }) => {
         throw new Error('Invalid password');
       }
 
-      // Remove password from stored data for security
-      const { password: _, ...userDataWithoutPassword } = staffData;
+      // Create user data without password for security
+      const userData = {
+        id: staffData.id,
+        unique_id: staffData.unique_id,
+        name: staffData.unique_id, // Use unique_id as display name
+        userType: 'government'
+      };
 
       // Set user session immediately (without password)
-      setUser(userDataWithoutPassword);
+      setUser(userData);
       setUserRole('government');
       
       // Save to localStorage for faster future loads (without password)
-      localStorage.setItem('civicapp_user', JSON.stringify(userDataWithoutPassword));
+      localStorage.setItem('civicapp_user', JSON.stringify(userData));
       localStorage.setItem('civicapp_role', 'government');
 
-      return { data: userDataWithoutPassword, error: null };
+      return { data: userData, error: null };
     } catch (error) {
       return { data: null, error };
     } finally {
