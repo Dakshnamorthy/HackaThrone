@@ -1,0 +1,162 @@
+.navbar {
+  height: 80px;
+  width: 100%;
+  background-color: #00796b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  box-sizing: border-box;
+  padding: 0 30px;
+}
+
+/* Center buttons */
+.navbar-center {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.navbar-btn {
+  background: none;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  padding: 10px 18px;
+  font-size: 18px;
+  cursor: pointer;
+  color: white;
+  font-weight: 530;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.navbar-btn:hover {
+  color: #00bfa5;
+  transform: translateY(-2px);
+}
+
+/* Right-end section (bell + login) */
+.navbar-right {
+  position: absolute;
+  right: 30px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Notification Bell */
+.notification-icon {
+  color: #b2dfdb;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.notification-icon:hover {
+  transform: scale(1.2);
+  color: #e0f2f1;
+}
+
+/* Login / Signup Button */
+.nav-login-btn {
+  background-color: #00bfa5;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 22px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  text-decoration: none;
+}
+
+.nav-login-btn:hover {
+  background-color: #00796b;
+  transform: translateY(-2px);
+}
+
+.user-circle {
+  width: 40px;
+  height: 40px;
+  background-color: #26a69a;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.user-circle:hover {
+  background-color: #00bfa5;
+}
+
+/* ---------- Responsive Design ---------- */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    height: auto;
+    padding: 10px 15px;
+  }
+
+  .navbar-center {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .navbar-btn {
+    font-size: 16px;
+    padding: 8px 14px;
+  }
+
+  .navbar-right {
+    position: static;
+    margin-top: 10px;
+    justify-content: center;
+  }
+
+  .nav-login-btn {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  .notification-icon {
+    font-size: 1.2rem;
+  }
+
+  .user-circle {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-btn {
+    font-size: 14px;
+    padding: 6px 12px;
+  }
+
+  .nav-login-btn {
+    font-size: 13px;
+    padding: 6px 14px;
+  }
+
+  .navbar-center {
+    gap: 6px;
+  }
+
+  .notification-icon {
+    font-size: 1rem;
+  }
+}
