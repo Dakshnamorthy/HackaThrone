@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import { useAuth } from "../context/SimpleAuthContext";
 import { supabase } from "../../supabaseClient";
 import { useNavigate } from "react-router-dom";
+import VerificationGuard from "../citizen/VerificationGuard";
 import "./ReportIssue.css";
 
 function ReportIssue() {
@@ -100,6 +101,26 @@ function ReportIssue() {
     );
   };
 
+  // Geocode address to get coordinates when manually entered
+  const geocodeAddress = async (address) => {
+    try {
+      // Using a simple geocoding approach - you can replace with Google Maps API or other service
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`);
+      const data = await response.json();
+      
+      if (data && data.length > 0) {
+        return {
+          lat: parseFloat(data[0].lat),
+          lng: parseFloat(data[0].lon)
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error('Geocoding error:', error);
+      return null;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -115,6 +136,20 @@ function ReportIssue() {
     }
 
     setIsSubmitting(true);
+
+    // If coordinates are not available (manual entry), try to geocode
+    let finalCoordinates = coordinates;
+    if (!coordinates.lat || !coordinates.lng) {
+      console.log('No GPS coordinates available, attempting to geocode address...');
+      const geocodedCoords = await geocodeAddress(location);
+      if (geocodedCoords) {
+        finalCoordinates = geocodedCoords;
+        console.log('Geocoded coordinates:', geocodedCoords);
+      } else {
+        console.log('Geocoding failed, proceeding without coordinates');
+        finalCoordinates = { lat: null, lng: null };
+      }
+    }
 
     try {
       // Upload images to Supabase storage (if any)
@@ -151,8 +186,8 @@ function ReportIssue() {
         type: issueType,
         description,
         location,
-        latitude: coordinates.lat,
-        longitude: coordinates.lng,
+        latitude: finalCoordinates.lat,
+        longitude: finalCoordinates.lng,
         images: imageUrls,
         status: 'Pending',
         priority: 'Medium'
@@ -165,8 +200,8 @@ function ReportIssue() {
           type: issueType,
           description,
           location,
-          latitude: coordinates.lat,
-          longitude: coordinates.lng,
+          latitude: finalCoordinates.lat,
+          longitude: finalCoordinates.lng,
           images: imageUrls,
           status: 'Pending',
           priority: 'Medium'
@@ -191,6 +226,8 @@ function ReportIssue() {
       setImagePreviews([]);
       setLocation("");
       setCoordinates({ lat: null, lng: null });
+      setShowLocationQuestion(true);
+      setIsAtLocation(null);
 
       alert(`Issue submitted successfully! Ticket Number: ${issueData.issue_id}`);
       
@@ -220,24 +257,10 @@ function ReportIssue() {
   return (
     <>
       <Navbar />
-      <div className="reportIssue-container">
-        <h1>Report an Issue</h1>
-        <p>Help us keep the city clean and safe by reporting civic issues.</p>
-
-        {!user ? (
-          <div className="login-required">
-            <div className="login-message">
-              <h3>🔒 Login Required</h3>
-              <p>You need to be logged in to report an issue.</p>
-              <button 
-                onClick={() => navigate('/login')} 
-                className="login-redirect-btn"
-              >
-                Go to Login
-              </button>
-            </div>
-          </div>
-        ) : (
+      <VerificationGuard>
+        <div className="reportIssue-container">
+          <h1>Report an Issue</h1>
+          <p>Help us keep the city clean and safe by reporting civic issues.</p>
           <form className="report-form" onSubmit={handleSubmit}>
           <label htmlFor="issueType">Issue Type *</label>
           <select
@@ -363,7 +386,6 @@ function ReportIssue() {
             {isSubmitting ? 'Submitting...' : 'Submit Issue'}
           </button>
         </form>
-        )}
 
         {ticketNumber && (
           <div className="ticket-confirmation">
@@ -382,6 +404,7 @@ function ReportIssue() {
           <a href="#">Privacy Policy</a> | <a href="#">Terms</a>
         </div>
       </footer>
+      </VerificationGuard>
     </>
   );
 }

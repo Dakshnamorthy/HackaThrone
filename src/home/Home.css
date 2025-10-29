@@ -3,16 +3,31 @@
   color: #004d40;
   background-color: #f5f5f5;
   width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
   overflow-x: hidden;
+}
+
+/* Ensure all sections are properly contained */
+.home-container section {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
 }
 
 /* Hero Section */
 .hero-section {
   text-align: center;
-  padding: 130px 20px 80px;
-  background-color: #00796b;
+  padding: 120px 20px 80px;
+  background: linear-gradient(135deg, #00796b, #004d40);
   color: white;
-  margin-top: 110px;
+  margin-top: 70px; /* Match navbar height */
+  min-height: calc(100vh - 70px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .hero-section h1 {
@@ -105,6 +120,8 @@
   margin-top: 25px;
   border-radius: 12px;
   font-weight: bold;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Statistics Section */
@@ -113,6 +130,8 @@
   text-align: center;
   background-color: white;
   color: #004d40;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .stats-container {
@@ -121,6 +140,8 @@
   justify-content: center;
   gap: 50px;
   margin-top: 40px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .stat h3 {

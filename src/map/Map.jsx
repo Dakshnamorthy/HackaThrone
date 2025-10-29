@@ -27,28 +27,32 @@ const mockReports = [
     location: [11.9360, 79.8350], // Rock Beach / White Town
     status: "Resolved",
     images: ["https://via.placeholder.com/100"]
-  },
-  {
-    id: "CIV-1003",
-    type: "Streetlight",
-    description: "Broken streetlight near Pondicherry University entrance.",
-    date: "2025-10-16",
-    submittedBy: "User789",
-    location: [12.0205, 79.8560], // Pondicherry University
-    status: "Pending",
-    images: ["https://via.placeholder.com/100"]
   }
 ];
 
 
-// Custom icon colors based on issue type
-const getIcon = () =>
-  L.icon({
-    iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png", // red map pin
+// Custom icon colors based on issue status and priority
+const getIcon = (status, priority) => {
+  let iconUrl;
+  
+  // Choose icon color based on status
+  if (status === 'Resolved') {
+    iconUrl = "https://cdn-icons-png.flaticon.com/512/2776/2776067.png"; // green pin
+  } else if (status === 'In Progress') {
+    iconUrl = "https://cdn-icons-png.flaticon.com/512/684/684908.png"; // orange/red pin
+  } else if (priority === 'High') {
+    iconUrl = "https://cdn-icons-png.flaticon.com/512/684/684908.png"; // red pin for high priority
+  } else {
+    iconUrl = "https://cdn-icons-png.flaticon.com/512/2776/2776067.png"; // default blue/green pin
+  }
+  
+  return L.icon({
+    iconUrl: iconUrl,
     iconSize: [35, 35],
     iconAnchor: [17, 35],
     popupAnchor: [0, -30]
   });
+};
 
 
 function MapPage() {
@@ -62,14 +66,34 @@ function MapPage() {
       const { data, error } = await supabase
         .from('issues')
         .select(`
-          *,
-          citizens (name)
+          id,
+          issue_id,
+          citizen_id,
+          type,
+          description,
+          location,
+          latitude,
+          longitude,
+          status,
+          priority,
+          images,
+          created_at,
+          updated_at,
+          citizens (name, email)
         `)
         .not('latitude', 'is', null)
         .not('longitude', 'is', null);
 
       if (error) throw error;
-      setIssues(data || []);
+      
+      // Filter out issues with invalid coordinates
+      const validIssues = (data || []).filter(issue => 
+        issue.latitude && issue.longitude && 
+        !isNaN(parseFloat(issue.latitude)) && 
+        !isNaN(parseFloat(issue.longitude))
+      );
+      
+      setIssues(validIssues);
     } catch (error) {
       console.error('Error fetching issues:', error);
       // Fallback to mock data if database fails
@@ -100,7 +124,9 @@ function MapPage() {
     const markers = [];
 
     issues.forEach((issue) => {
-      const marker = L.marker([issue.latitude, issue.longitude], { icon: getIcon() }).addTo(map);
+      const marker = L.marker([parseFloat(issue.latitude), parseFloat(issue.longitude)], { 
+        icon: getIcon(issue.status, issue.priority) 
+      }).addTo(map);
 
       const statusColor = issue.status === 'Resolved' ? '#4caf50' : 
                          issue.status === 'In Progress' ? '#ff9800' : '#f44336';
@@ -120,8 +146,9 @@ function MapPage() {
           <p style="margin: 4px 0; font-size: 14px; color: #333;"><strong>Date:</strong> ${formattedDate}</p>
           <p style="margin: 4px 0; font-size: 14px; color: #666;">${issue.description}</p>
           <p style="margin: 4px 0; font-size: 12px; color: #888;"><strong>Reported by:</strong> ${issue.citizens?.name || 'Anonymous'}</p>
-          ${issue.images && issue.images.length > 0 ? 
-            `<img src="${issue.images[0]}" style="width: 100%; max-width: 180px; height: auto; margin-top: 8px; border-radius: 4px;" alt="Issue image" />` 
+          <p style="margin: 4px 0; font-size: 12px; color: #888;"><strong>Location:</strong> ${issue.location || 'Not specified'}</p>
+          ${issue.images && Array.isArray(issue.images) && issue.images.length > 0 ? 
+            `<img src="${issue.images[0]}" style="width: 100%; max-width: 180px; height: auto; margin-top: 8px; border-radius: 4px;" alt="Issue image" onerror="this.style.display='none'" />` 
             : ''
           }
         </div>
@@ -148,7 +175,18 @@ function MapPage() {
       <div className="map-container">
         <h1>City Issues Map</h1>
         <p className="map-intro">Explore all reported civic issues in your city. Click markers to see details.</p>
-        <div id="city-map"></div>
+        {loading ? (
+          <div className="map-loading">
+            <p>Loading map data...</p>
+          </div>
+        ) : (
+          <div id="city-map"></div>
+        )}
+        {!loading && issues.length === 0 && (
+          <div className="no-issues-message">
+            <p>No issues with location data found.</p>
+          </div>
+        )}
       </div>
 
       <footer className="footer">

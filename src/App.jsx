@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/SimpleAuthContext";
 import ComplaintStatus from "./complaintStatus/ComplaintStatus"
 import Navbar from "./components/Navbar"
@@ -25,6 +25,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/verify-otp" element={<OTPVerification />} />
+          {/* Redirect old profile route to home */}
+          <Route path="/citizen/profile" element={<Navigate to="/" replace />} />
           <Route path="/report-issue" element={<ReportIssue />} />
           <Route path="/help" element={<Help/>} />
           <Route path="/map" element={<Map />} />

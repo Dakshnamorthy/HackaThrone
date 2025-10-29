@@ -1,7 +1,7 @@
 .navbar {
-  height: 80px;
+  height: 70px;
   width: 100%;
-  background-color: #00796b;
+  background: linear-gradient(135deg, #00796b, #004d40);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,12 +10,13 @@
   left: 0;
   z-index: 1000;
   box-sizing: border-box;
-  padding: 0 30px;
+  padding: 0 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .navbar-container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -24,12 +25,60 @@
 
 .navbar-logo {
   color: white;
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.6rem;
+  font-weight: 700;
   text-decoration: none;
   display: flex;
   align-items: center;
   gap: 8px;
+  letter-spacing: 0.5px;
+}
+
+.navbar-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  justify-content: center;
+  margin: 0 40px;
+}
+
+.navbar-btn {
+  color: white;
+  text-decoration: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.navbar-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.navbar-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.navbar-btn:hover::before {
+  left: 100%;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .gov-badge {
@@ -547,3 +596,241 @@
     width: 220px;
   }
 }
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+}
+
+.mobile-menu-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile Menu */
+.mobile-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #00796b, #004d40);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  transform: translateY(-100%);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.mobile-menu.active {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.mobile-menu-item {
+  display: block;
+  color: white;
+  text-decoration: none;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background-color 0.3s ease;
+  font-weight: 500;
+}
+
+.mobile-menu-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mobile-menu-item:last-child {
+  border-bottom: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 16px;
+    height: 65px;
+  }
+
+  .navbar-logo {
+    font-size: 1.4rem;
+  }
+
+  .navbar-center {
+    display: none;
+  }
+
+  .mobile-menu-toggle {
+    display: block;
+  }
+
+  .navbar-right {
+    gap: 12px;
+  }
+
+  .notification-icon {
+    font-size: 1rem;
+  }
+
+  .profile-dropdown {
+    width: 220px;
+    right: 0;
+  }
+
+  .user-name {
+    display: none;
+  }
+}
+
+/* Profile Modal Styles */
+.profile-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.profile-modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-modal-header {
+  background: #00796b;
+  color: white;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.profile-modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.profile-modal-close {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.profile-modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.profile-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+/* Override Profile component styles when in modal */
+.profile-modal-body .profile-container {
+  max-width: none;
+  margin: 0;
+  padding: 24px;
+  background: white;
+  min-height: auto;
+}
+
+.profile-modal-body .profile-header {
+  background: #f8f9fa;
+  margin: -24px -24px 24px -24px;
+  padding: 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.profile-modal-body .profile-header h2 {
+  color: #00796b;
+  margin-bottom: 8px;
+}
+
+.profile-modal-body .form-section h3 {
+  color: #00796b;
+  border-bottom-color: #00796b;
+}
+
+.profile-modal-body .submit-button {
+  background: linear-gradient(135deg, #00796b, #004d40);
+}
+
+.profile-modal-body .submit-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #004d40, #00251a);
+}
+
+.profile-modal-body .ocr-button {
+  background: linear-gradient(135deg, #00796b, #004d40);
+}
+
+.profile-modal-body .ocr-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #004d40, #00251a);
+}
+
+.profile-modal-body .file-label {
+  background: #00796b;
+}
+
+.profile-modal-body .file-label:hover {
+  background: #004d40;
+}
+
+/* Responsive modal */
+@media (max-width: 768px) {
+  .profile-modal-overlay {
+    padding: 10px;
+  }
+  
+  .profile-modal-content {
+    max-height: 95vh;
+  }
+  
+  .profile-modal-header {
+    padding: 16px 20px;
+  }
+  
+  .profile-modal-header h2 {
+    font-size: 1.3rem;
+  }
+  
+  .profile-modal-body .profile-container {
+    padding: 20px;
+  }
+  
+  .profile-modal-body .profile-header {
+    margin: -20px -20px 20px -20px;
+    padding: 20px;
+  }
+}
+

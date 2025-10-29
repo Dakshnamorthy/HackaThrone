@@ -1,0 +1,250 @@
+.verification-guard {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.verification-loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e3e3e3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.verification-card {
+  background: white;
+  border-radius: 16px;
+  padding: 48px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.verification-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+
+.verification-icon.error {
+  background: #fee;
+  color: #e74c3c;
+}
+
+.verification-icon.warning {
+  background: #fff8e1;
+  color: #f39c12;
+}
+
+.verification-icon.success {
+  background: #e8f5e8;
+  color: #27ae60;
+}
+
+.verification-card h2 {
+  color: #2c3e50;
+  margin: 0 0 16px 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.verification-card p {
+  color: #666;
+  margin: 0 0 32px 0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.verification-steps {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 12px;
+  min-width: 120px;
+  transition: all 0.3s ease;
+}
+
+.step.completed {
+  background: #e8f5e8;
+  color: #27ae60;
+}
+
+.step.pending {
+  background: #f8f9fa;
+  color: #95a5a6;
+}
+
+.step span {
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.verification-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  min-width: 140px;
+  justify-content: center;
+}
+
+.action-button.primary {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+}
+
+.action-button.primary:hover {
+  background: linear-gradient(135deg, #2980b9, #21618c);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(52, 152, 219, 0.3);
+}
+
+.action-button.secondary {
+  background: #ecf0f1;
+  color: #2c3e50;
+  border: 2px solid #bdc3c7;
+}
+
+.action-button.secondary:hover {
+  background: #d5dbdb;
+  border-color: #95a5a6;
+  transform: translateY(-1px);
+}
+
+.verified-content {
+  min-height: 100vh;
+}
+
+.verification-note {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: #666;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .verification-guard {
+    padding: 16px;
+  }
+  
+  .verification-card {
+    padding: 32px 24px;
+  }
+  
+  .verification-card h2 {
+    font-size: 1.5rem;
+  }
+  
+  .verification-card p {
+    font-size: 1rem;
+  }
+  
+  .verification-steps {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .step {
+    flex-direction: row;
+    justify-content: flex-start;
+    width: 100%;
+    min-width: auto;
+    padding: 12px 16px;
+  }
+  
+  .verification-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .action-button {
+    width: 100%;
+    padding: 16px 24px;
+  }
+}
+
+/* Animation for step completion */
+.step.completed {
+  animation: slideInFromLeft 0.6s ease-out;
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Pulse animation for pending steps */
+.step.pending {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}

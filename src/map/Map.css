@@ -28,6 +28,22 @@
   margin: 0 auto 40px;
 }
 
+.map-loading, .no-issues-message {
+  height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.map-loading p, .no-issues-message p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+}
+
 /* Footer */
 .footer {
   text-align: center;
