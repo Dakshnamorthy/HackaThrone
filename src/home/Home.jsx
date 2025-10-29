@@ -34,36 +34,28 @@ function Home() {
           <h2>How It Works</h2>
           <div className="steps-container">
             <div className="step">
-              <div className="step-icon">📝</div>
+              <div className="step-icon"></div>
               <h3>Report</h3>
               <p>Submit an issue with description and photos.</p>
             </div>
             <div className="step">
-              <div className="step-icon">🤖</div>
+              <div className="step-icon"></div>
               <h3>AI Classification</h3>
               <p>Our AI categorizes the issue automatically.</p>
             </div>
             <div className="step">
-              <div className="step-icon">📍</div>
+              <div className="step-icon"></div>
               <h3>AR Location</h3>
               <p>Mark the location accurately on the map.</p>
             </div>
             <div className="step">
-              <div className="step-icon">✅</div>
+              <div className="step-icon"></div>
               <h3>Track Resolution</h3>
               <p>Follow the progress until the issue is resolved.</p>
             </div>
           </div>
         </section>
 
-        {/* Interactive Map Section */}
-        <section className="map-section">
-          <h2>City Map</h2>
-          <div className="map-placeholder">
-            {/* Mapbox/Leaflet map will be integrated here */}
-            <p>Interactive city map coming soon...</p>
-          </div>
-        </section>
 
         {/* Statistics Section */}
         <section className="statistics-section">

@@ -43,29 +43,46 @@ function MapPage() {
   // Fetch issues from database
   const fetchIssues = async () => {
     try {
+      console.log('🔍 Attempting to fetch issues from database...');
+      
+      // Check authentication status
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      console.log('👤 Current user:', user);
+      if (authError) {
+        console.warn('⚠️ Auth error:', authError);
+      }
+      
+      // First, try a simple query to test connection
       const { data, error } = await supabase
         .from('issues')
-        .select(`
-          id,
-          issue_id,
-          citizen_id,
-          type,
-          description,
-          location,
-          latitude,
-          longitude,
-          status,
-          priority,
-          images,
-          created_at,
-          updated_at,
-          citizens (name, email)
-        `)
+        .select('*')
         .not('latitude', 'is', null)
-        .not('longitude', 'is', null)
-        .neq('status', 'Closed'); // Exclude closed issues
+        .not('longitude', 'is', null);
 
       if (error) throw error;
+      
+      console.log('Raw data from database:', data);
+      console.log('Number of issues fetched:', data?.length || 0);
+      console.log('Sample issue data:', data?.[0]);
+      
+      // Check if we have any data at all
+      if (!data || data.length === 0) {
+        console.warn('❌ No issues found in database');
+        setIssues([]);
+        return;
+      }
+      
+      // Log coordinate data for each issue
+      data.forEach((issue, index) => {
+        console.log(`Issue ${index + 1} (${issue.issue_id}):`, {
+          latitude: issue.latitude,
+          longitude: issue.longitude,
+          latType: typeof issue.latitude,
+          lngType: typeof issue.longitude,
+          location: issue.location,
+          status: issue.status
+        });
+      });
       
       // Filter and validate coordinates
       const validIssues = (data || []).filter(issue => {
@@ -155,9 +172,36 @@ function MapPage() {
       
       setIssues(validIssues);
     } catch (error) {
-      console.error('Error fetching issues:', error);
-      // Set empty array if database fails
-      setIssues([]);
+      console.error('❌ Error fetching issues:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      });
+      
+      // Try a fallback query without filters
+      console.log('🔄 Trying fallback query...');
+      try {
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('issues')
+          .select('*')
+          .limit(10);
+          
+        if (fallbackError) {
+          console.error('❌ Fallback query also failed:', fallbackError);
+        } else {
+          console.log('✅ Fallback query successful:', fallbackData);
+          // Filter issues that have coordinates
+          const issuesWithCoords = (fallbackData || []).filter(issue => 
+            issue.latitude != null && issue.longitude != null
+          );
+          setIssues(issuesWithCoords);
+        }
+      } catch (fallbackErr) {
+        console.error('❌ Fallback query error:', fallbackErr);
+        setIssues([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -168,7 +212,13 @@ function MapPage() {
   }, []);
 
   useEffect(() => {
-    if (loading) return;
+    if (loading) {
+      console.log('⏳ Map loading...');
+      return;
+    }
+    
+    console.log('🗺️ Initializing map with', issues.length, 'issues');
+    console.log('Issues to render:', issues);
     
     const map = L.map("city-map");
 
@@ -225,11 +275,15 @@ function MapPage() {
       markers.push(marker);
     });
 
+    console.log(`✅ Created ${markers.length} markers on the map`);
+
     // Fit map to markers if any exist
     if (markers.length > 0) {
+      console.log('📍 Fitting map bounds to show all markers');
       const group = L.featureGroup(markers);
       map.fitBounds(group.getBounds().pad(0.2));
     } else {
+      console.log('🎯 No markers found, setting default view to Pondicherry');
       // Default view if no markers
       map.setView([11.9416, 79.8083], 13); // Pondicherry coordinates
     }
