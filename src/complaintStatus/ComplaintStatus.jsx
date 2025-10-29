@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from '../components/Navbar';
+import GovNavbar from '../components/GovNavbar';
+import { useAuth } from '../context/SimpleAuthContext';
+import { supabase } from '../../supabaseClient';
 import './ComplaintStatus.css';
 
 const mockComplaints = [
@@ -28,7 +31,53 @@ const mockComplaints = [
 ];
 
 function ComplaintStatus() {
+  const { userRole, user } = useAuth();
   const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [complaints, setComplaints] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch user's issues from database
+  const fetchUserIssues = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('issues')
+        .select('*')
+        .eq('citizen_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      // Transform data to match component expectations
+      const transformedData = data.map(issue => ({
+        id: issue.issue_id,
+        type: issue.type,
+        submissionDate: new Date(issue.created_at).toLocaleDateString(),
+        status: issue.status,
+        lastUpdated: new Date(issue.updated_at).toLocaleDateString(),
+        description: issue.description,
+        location: issue.location,
+        priority: issue.priority,
+        images: issue.images || []
+      }));
+
+      setComplaints(transformedData);
+    } catch (error) {
+      console.error('Error fetching user issues:', error);
+      // Fallback to mock data if database fails
+      setComplaints(mockComplaints);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserIssues();
+  }, [user]);
 
   const openDetails = (complaint) => {
     setSelectedComplaint(complaint);
@@ -42,39 +91,56 @@ function ComplaintStatus() {
 
   return (
     <>
-      <Navbar />
+      {userRole === 'government' ? <GovNavbar /> : <Navbar />}
       <div className="complaintStatus-container">
         <h1>My Complaints</h1>
         <p>Track the status of the issues you have reported.</p>
 
-        <div className="table-container">
-          <table className="complaint-table">
-            <thead>
-              <tr>
-                <th>Complaint ID</th>
-                <th>Issue Type</th>
-                <th>Submission Date</th>
-                <th>Status</th>
-                <th>Last Updated</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {mockComplaints.map((complaint) => (
-                <tr key={complaint.id}>
-                  <td>{complaint.id}</td>
-                  <td>{complaint.type}</td>
-                  <td>{complaint.submissionDate}</td>
-                  <td className={`status ${complaint.status.replace(" ", "").toLowerCase()}`}>{complaint.status}</td>
-                  <td>{complaint.lastUpdated}</td>
-                  <td>
-                    <button className="details-btn" onClick={() => openDetails(complaint)}>View Details</button>
-                  </td>
+        {loading ? (
+          <div className="loading-container">
+            <p>Loading your complaints...</p>
+          </div>
+        ) : !user ? (
+          <div className="login-prompt">
+            <p>Please log in to view your complaint status.</p>
+          </div>
+        ) : complaints.length === 0 ? (
+          <div className="no-complaints">
+            <p>You haven't reported any issues yet.</p>
+            <p>Visit the <a href="/report-issue">Report Issue</a> page to submit your first complaint.</p>
+          </div>
+        ) : (
+          <div className="table-container">
+            <table className="complaint-table">
+              <thead>
+                <tr>
+                  <th>Complaint ID</th>
+                  <th>Issue Type</th>
+                  <th>Submission Date</th>
+                  <th>Status</th>
+                  <th>Priority</th>
+                  <th>Last Updated</th>
+                  <th>Action</th>
                 </tr>
+              </thead>
+              <tbody>
+                {complaints.map((complaint) => (
+                  <tr key={complaint.id}>
+                    <td>{complaint.id}</td>
+                    <td>{complaint.type}</td>
+                    <td>{complaint.submissionDate}</td>
+                    <td className={`status ${complaint.status.replace(" ", "").toLowerCase()}`}>{complaint.status}</td>
+                    <td className={`priority ${complaint.priority?.toLowerCase()}`}>{complaint.priority}</td>
+                    <td>{complaint.lastUpdated}</td>
+                    <td>
+                      <button className="details-btn" onClick={() => openDetails(complaint)}>View Details</button>
+                    </td>
+                  </tr>
               ))}
             </tbody>
           </table>
         </div>
+        )}
 
         {/* Modal */}
         {selectedComplaint && (

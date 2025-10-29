@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.75.1",
+    "exif-js": "^2.3.0",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^0.548.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.4"
@@ -27,7 +30,11 @@
     "vite": "^7.1.7"
   },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",

@@ -71,10 +71,206 @@
   font-size: 0.85rem;
 }
 
-.status.pending { background-color: #b0bec5; color: #263238; }
-.status.inprogress { background-color: #ffe082; color: #ff6f00; }
-.status.resolved { background-color: #a5d6a7; color: #1b5e20; }
-.status.closed { background-color: #80cbc4; color: #004d40; }
+.status.pending { 
+  color: #ff9800;
+  font-weight: bold;
+}
+
+.status.inprogress { 
+  color: #2196f3;
+  font-weight: bold;
+}
+
+.status.resolved { 
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.status.closed { 
+  background-color: #80cbc4; 
+  color: #004d40; 
+}
+
+/* Priority Colors */
+.priority.high {
+  color: #f44336;
+  font-weight: bold;
+}
+
+.priority.medium {
+  color: #ff9800;
+  font-weight: bold;
+}
+
+.priority.low {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+/* Loading and Empty States */
+.loading-container, .login-prompt, .no-complaints {
+  text-align: center;
+  padding: 40px 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+}
+
+.loading-container p {
+  color: #666;
+  font-size: 16px;
+}
+
+.login-prompt p {
+  color: #333;
+  font-size: 16px;
+}
+
+.no-complaints p {
+  color: #666;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.no-complaints a {
+  color: #00796b;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.no-complaints a:hover {
+  text-decoration: underline;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .complaintStatus-container {
+    padding: 20px 15px;
+    margin-top: 80px;
+  }
+
+  .complaintStatus-container h1 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+  }
+
+  .complaintStatus-container p {
+    font-size: 1rem;
+    margin-bottom: 25px;
+  }
+
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .complaint-table {
+    min-width: 600px;
+    font-size: 0.9rem;
+  }
+
+  .complaint-table th,
+  .complaint-table td {
+    padding: 8px 6px;
+    font-size: 0.85rem;
+  }
+
+  .details-btn {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+
+  .modal-content {
+    margin: 20px 10px;
+    padding: 20px 15px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .modal-content h2 {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+  }
+
+  .modal-content p {
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+  }
+
+  .close-btn {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+  }
+
+  .loading-container, .login-prompt, .no-complaints {
+    padding: 30px 15px;
+    margin: 15px 0;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .complaintStatus-container {
+    padding: 15px 10px;
+    margin-top: 60px;
+  }
+
+  .complaintStatus-container h1 {
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+  }
+
+  .complaintStatus-container p {
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+  }
+
+  .complaint-table {
+    min-width: 500px;
+    font-size: 0.8rem;
+  }
+
+  .complaint-table th,
+  .complaint-table td {
+    padding: 6px 4px;
+    font-size: 0.75rem;
+  }
+
+  .details-btn {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+
+  .modal-content {
+    margin: 10px 5px;
+    padding: 15px 10px;
+  }
+
+  .modal-content h2 {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+  }
+
+  .modal-content p {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+
+  .close-btn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+
+  .loading-container, .login-prompt, .no-complaints {
+    padding: 25px 10px;
+    margin: 10px 0;
+  }
+
+  .loading-container p, .login-prompt p, .no-complaints p {
+    font-size: 0.9rem;
+  }
+}
 
 /* Details button */
 .details-btn {

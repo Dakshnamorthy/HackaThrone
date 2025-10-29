@@ -1,6 +1,9 @@
 import { useState } from "react";
 import EXIF from "exif-js";
 import Navbar from "../components/Navbar";
+import { useAuth } from "../context/SimpleAuthContext";
+import { supabase } from "../../supabaseClient";
+import { useNavigate } from "react-router-dom";
 import "./ReportIssue.css";
 
 function ReportIssue() {
@@ -9,7 +12,13 @@ function ReportIssue() {
   const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [location, setLocation] = useState("");
-  const [ticketNumber, setTicketNumber] = useState(null);
+  const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
+  const [ticketNumber, setTicketNumber] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+  
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   // Convert EXIF GPS data to decimal
   const gpsToDecimal = (gpsData, ref) => {
@@ -27,52 +36,58 @@ function ReportIssue() {
     setImagePreviews(previews);
   };
 
-  const detectLocation = () => {
-    if (images.length === 0) {
-      alert("Please upload an image first.");
+  // Simple location detection using GPS for all devices
+  const detectLocation = async () => {
+    if (!navigator.geolocation) {
+      alert("❌ Geolocation is not supported by this browser.");
       return;
     }
 
-    let locationFound = false;
+    setIsDetectingLocation(true);
 
-    images.forEach((file, index) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          EXIF.getData(img, function () {
-            const lat = gpsToDecimal(
-              EXIF.getTag(this, "GPSLatitude"),
-              EXIF.getTag(this, "GPSLatitudeRef")
-            );
-            const lon = gpsToDecimal(
-              EXIF.getTag(this, "GPSLongitude"),
-              EXIF.getTag(this, "GPSLongitudeRef")
-            );
+    const options = {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0
+    };
 
-            if (lat && lon && !locationFound) {
-              setLocation(`${lat}, ${lon}`);
-              locationFound = true;
-              alert(
-                `✅ Location extracted from image ${index + 1}: ${lat}, ${lon}`
-              );
-            }
-          });
-        };
-        img.src = event.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
-
-    // If no location found after checking all images
-    setTimeout(() => {
-      if (!locationFound) {
-        alert("⚠️ No GPS coordinates found in any uploaded image. Please enter location manually.");
-      }
-    }, 1000 * images.length);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const accuracy = position.coords.accuracy;
+        
+        setLocation(`${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+        setCoordinates({ lat, lng });
+        setIsDetectingLocation(false);
+        
+        alert(`📍 Location detected!\nLatitude: ${lat.toFixed(6)}\nLongitude: ${lng.toFixed(6)}\nAccuracy: ${Math.round(accuracy)}m`);
+      },
+      (error) => {
+        setIsDetectingLocation(false);
+        let errorMessage = "❌ Unable to get your location. ";
+        
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage += "Location access denied. Please allow location access and try again.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage += "Location information unavailable. Please try again.";
+            break;
+          case error.TIMEOUT:
+            errorMessage += "Location request timed out. Please try again.";
+            break;
+          default:
+            errorMessage += "An unknown error occurred. Please try again.";
+            break;
+        }
+        alert(errorMessage);
+      },
+      options
+    );
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!issueType || !description || !location) {
@@ -80,16 +95,113 @@ function ReportIssue() {
       return;
     }
 
-    const ticket = "CIV-" + Math.floor(Math.random() * 1000000);
-    setTicketNumber(ticket);
+    if (!user) {
+      alert("Please log in to report an issue.");
+      navigate('/login');
+      return;
+    }
 
-    setIssueType("");
-    setDescription("");
-    setImages([]);
-    setImagePreviews([]);
-    setLocation("");
+    setIsSubmitting(true);
 
-    alert(`Issue submitted successfully! Ticket Number: ${ticket}`);
+    try {
+      // Upload images to Supabase storage (if any)
+      let imageUrls = [];
+      if (images.length > 0) {
+        for (let i = 0; i < images.length; i++) {
+          const file = images[i];
+          const fileName = `${Date.now()}_${i}_${file.name}`;
+          
+          try {
+            const { data: uploadData, error: uploadError } = await supabase.storage
+              .from('issue-images')
+              .upload(fileName, file);
+
+            if (uploadError) {
+              console.error('Image upload error:', uploadError);
+              // Continue without image if upload fails
+            } else {
+              const { data: { publicUrl } } = supabase.storage
+                .from('issue-images')
+                .getPublicUrl(fileName);
+              imageUrls.push(publicUrl);
+            }
+          } catch (storageError) {
+            console.error('Storage error:', storageError);
+            // Continue without image if storage fails
+          }
+        }
+      }
+
+      // Create issue in database
+      console.log('Submitting issue with data:', {
+        citizen_id: user.id,
+        type: issueType,
+        description,
+        location,
+        latitude: coordinates.lat,
+        longitude: coordinates.lng,
+        images: imageUrls,
+        status: 'Pending',
+        priority: 'Medium'
+      });
+
+      const { data: issueData, error: issueError } = await supabase
+        .from('issues')
+        .insert([{
+          citizen_id: user.id,
+          type: issueType,
+          description,
+          location,
+          latitude: coordinates.lat,
+          longitude: coordinates.lng,
+          images: imageUrls,
+          status: 'Pending',
+          priority: 'Medium'
+        }])
+        .select()
+        .single();
+
+      console.log('Supabase response:', { issueData, issueError });
+
+      if (issueError) {
+        console.error('Database error details:', issueError);
+        throw issueError;
+      }
+
+      // Show success message with generated issue ID
+      setTicketNumber(issueData.issue_id);
+      
+      // Reset form
+      setIssueType("");
+      setDescription("");
+      setImages([]);
+      setImagePreviews([]);
+      setLocation("");
+      setCoordinates({ lat: null, lng: null });
+
+      alert(`Issue submitted successfully! Ticket Number: ${issueData.issue_id}`);
+      
+      // Redirect to complaint status page
+      setTimeout(() => {
+        navigate('/complaint-status');
+      }, 2000);
+
+    } catch (error) {
+      console.error('Error submitting issue:', error);
+      
+      // Provide specific error messages
+      if (error.message.includes('relation "issues" does not exist')) {
+        alert('Database table not found. Please run the CREATE_ISSUES_TABLE.sql script in Supabase first.');
+      } else if (error.message.includes('permission denied')) {
+        alert('Permission error. Please check if you are logged in and try again.');
+      } else if (error.message.includes('violates row-level security')) {
+        alert('Security policy error. Please make sure you are logged in as a citizen.');
+      } else {
+        alert(`Error submitting issue: ${error.message}`);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -99,7 +211,21 @@ function ReportIssue() {
         <h1>Report an Issue</h1>
         <p>Help us keep the city clean and safe by reporting civic issues.</p>
 
-        <form className="report-form" onSubmit={handleSubmit}>
+        {!user ? (
+          <div className="login-required">
+            <div className="login-message">
+              <h3>🔒 Login Required</h3>
+              <p>You need to be logged in to report an issue.</p>
+              <button 
+                onClick={() => navigate('/login')} 
+                className="login-redirect-btn"
+              >
+                Go to Login
+              </button>
+            </div>
+          </div>
+        ) : (
+          <form className="report-form" onSubmit={handleSubmit}>
           <label htmlFor="issueType">Issue Type *</label>
           <select
             id="issueType"
@@ -154,18 +280,22 @@ function ReportIssue() {
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="Enter location or detect from image"
+              placeholder="Enter location or detect automatically"
               required
             />
-            <button type="button" onClick={detectLocation}>
-              Detect My Location
+            <button type="button" onClick={detectLocation} disabled={isDetectingLocation}>
+              {isDetectingLocation ? "🔍 Getting Location..." : "📍 Detect My Location"}
             </button>
+            <div className="location-help">
+              <small>💡 Allow location access when prompted for automatic detection</small>
+            </div>
           </div>
 
-          <button type="submit" className="submit-btn">
-            Submit Issue
+          <button type="submit" className="submit-btn" disabled={isSubmitting}>
+            {isSubmitting ? 'Submitting...' : 'Submit Issue'}
           </button>
         </form>
+        )}
 
         {ticketNumber && (
           <div className="ticket-confirmation">

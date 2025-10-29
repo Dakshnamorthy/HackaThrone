@@ -1,8 +1,65 @@
 import Navbar from '../components/Navbar';
 import './SignUp.css';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { useAuth } from '../context/SimpleAuthContext';
 
 function SignUp() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { signUpCitizen } = useAuth();
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    // Validation
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const result = await signUpCitizen(formData.email, formData.password, formData.name);
+      
+      if (result.error) {
+        throw new Error(result.error.message);
+      }
+
+      // Redirect to OTP verification page
+      navigate('/verify-otp', { 
+        state: { email: formData.email } 
+      });
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   return (
     <>
       <Navbar />
@@ -28,47 +85,55 @@ function SignUp() {
         <div className="signup-form-section">
           <div className="signup-form-container">
             <h2>Create Your Account</h2>
-            <form>
+            {error && <div className="error-message">{error}</div>}
+            <form onSubmit={handleSignUp}>
               <label htmlFor="name">Full Name</label>
-              <input type="text" id="name" placeholder="Enter your full name" required />
+              <input 
+                type="text" 
+                id="name" 
+                name="name"
+                placeholder="Enter your full name" 
+                required 
+                value={formData.name}
+                onChange={handleInputChange}
+              />
 
               <label htmlFor="email">Email</label>
-              <input type="email" id="email" placeholder="Enter your email" required />
+              <input 
+                type="email" 
+                id="email" 
+                name="email"
+                placeholder="Enter your email" 
+                required 
+                value={formData.email}
+                onChange={handleInputChange}
+              />
 
               <label htmlFor="password">Password</label>
-              <input type="password" id="password" placeholder="Enter your password" required />
-
-              <label htmlFor="phone">Phone Number</label>
-              <input type="tel" id="phone" placeholder="Enter your phone number" />
-
-              <label htmlFor="location">Location</label>
-              <input
-                type="text"
-                id="location"
-                placeholder="Enter your city or use geolocation"
+              <input 
+                type="password" 
+                id="password" 
+                name="password"
+                placeholder="Enter your password (min 6 characters)" 
+                required 
+                value={formData.password}
+                onChange={handleInputChange}
               />
-              <button
-                type="button"
-                className="geo-btn"
-                onClick={() => {
-                  if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                      (position) => {
-                        const { latitude, longitude } = position.coords;
-                        document.getElementById("location").value =
-                          `Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)}`;
-                      },
-                      (err) => alert("Geolocation error: " + err.message)
-                    );
-                  } else {
-                    alert("Geolocation not supported by your browser");
-                  }
-                }}
-              >
-                Use My Current Location
-              </button>
 
-              <button type="submit" className="signup-btn">Sign Up</button>
+              <label htmlFor="confirmPassword">Confirm Password</label>
+              <input 
+                type="password" 
+                id="confirmPassword" 
+                name="confirmPassword"
+                placeholder="Confirm your password" 
+                required 
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+              />
+
+              <button type="submit" className="signup-btn" disabled={loading}>
+                {loading ? "Creating Account..." : "Sign Up"}
+              </button>
             </form>
 
             <p className="login-text">

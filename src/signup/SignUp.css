@@ -163,6 +163,43 @@
   text-decoration: underline;
 }
 
+/* Error Message */
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+  border: 1px solid #ef5350;
+}
+
+/* OTP Verification Styles */
+.otp-instruction {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #34495e;
+  line-height: 1.5;
+}
+
+.back-text {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #00796b;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: underline;
+}
+
+.back-btn:hover {
+  color: #004d40;
+}
+
 /* Responsive for tablets and smaller screens */
 @media (max-width: 1024px) {
   .signup-hero, .signup-form-section {

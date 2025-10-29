@@ -1,0 +1,260 @@
+.otp-page-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  padding-top: 100px;
+}
+
+.otp-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+}
+
+.otp-header {
+  margin-bottom: 30px;
+}
+
+.otp-header h1 {
+  color: #2c3e50;
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.otp-header p {
+  color: #7f8c8d;
+  margin-bottom: 5px;
+}
+
+.otp-header strong {
+  color: #00796b;
+  font-size: 1.1rem;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+  border: 1px solid #ef5350;
+}
+
+.success-message {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+  border: 1px solid #4caf50;
+}
+
+.verification-methods {
+  margin-bottom: 20px;
+}
+
+.method-toggle {
+  display: flex;
+  margin-bottom: 20px;
+  border-radius: 25px;
+  overflow: hidden;
+  border: 2px solid #00796b;
+}
+
+.method-btn {
+  flex: 1;
+  padding: 10px 15px;
+  background-color: white;
+  color: #00796b;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.method-btn.active {
+  background-color: #00796b;
+  color: white;
+}
+
+.method-btn:hover:not(.active) {
+  background-color: #e0f2f1;
+}
+
+.email-verification {
+  text-align: center;
+  padding: 20px;
+}
+
+.email-instructions h3 {
+  color: #00796b;
+  margin-bottom: 15px;
+}
+
+.email-instructions p {
+  color: #555;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.otp-form {
+  margin-bottom: 30px;
+}
+
+.otp-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.otp-input {
+  width: 50px;
+  height: 60px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2c3e50;
+  transition: all 0.3s ease;
+}
+
+.otp-input:focus {
+  outline: none;
+  border-color: #00796b;
+  box-shadow: 0 0 0 3px rgba(0, 121, 107, 0.1);
+}
+
+.otp-input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.verify-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #00796b, #004d40);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.verify-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #004d40, #00251a);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 121, 107, 0.3);
+}
+
+.verify-btn:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.otp-footer {
+  margin-bottom: 20px;
+}
+
+.otp-footer p {
+  color: #7f8c8d;
+  margin-bottom: 10px;
+}
+
+.resend-btn {
+  background: none;
+  border: none;
+  color: #00796b;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 1rem;
+}
+
+.resend-btn:hover:not(:disabled) {
+  color: #004d40;
+}
+
+.resend-btn:disabled {
+  color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.resend-timer {
+  color: #95a5a6;
+  font-weight: 500;
+}
+
+.back-to-signup {
+  border-top: 1px solid #ecf0f1;
+  padding-top: 20px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #7f8c8d;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: underline;
+}
+
+.back-btn:hover {
+  color: #34495e;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .otp-page-container {
+    padding: 10px;
+    padding-top: 100px;
+  }
+
+  .otp-card {
+    padding: 30px 20px;
+  }
+
+  .otp-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .otp-inputs {
+    gap: 8px;
+  }
+
+  .otp-input {
+    width: 40px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .otp-inputs {
+    gap: 6px;
+  }
+
+  .otp-input {
+    width: 35px;
+    height: 45px;
+    font-size: 1rem;
+  }
+
+  .otp-header strong {
+    word-break: break-all;
+  }
+}

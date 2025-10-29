@@ -108,6 +108,57 @@
   color: #00796b;
 }
 
+/* Login Type Toggle */
+.login-type-toggle {
+  display: flex;
+  margin-bottom: 20px;
+  border-radius: 25px;
+  overflow: hidden;
+  border: 2px solid #00796b;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 10px 15px;
+  background-color: white;
+  color: #00796b;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.toggle-btn.active {
+  background-color: #00796b;
+  color: white;
+}
+
+.toggle-btn:hover:not(.active) {
+  background-color: #e0f2f1;
+}
+
+/* Error Message */
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+  border: 1px solid #ef5350;
+}
+
+/* Success Message */
+.success-message {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+  border: 1px solid #4caf50;
+}
+
 /* Footer */
 .footer {
   text-align: center;
@@ -124,6 +175,124 @@
 
 .footer a:hover {
   text-decoration: underline;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .login-container {
+    padding: 20px 15px;
+    margin-top: 80px;
+  }
+
+  .login-form {
+    padding: 30px 20px;
+    margin: 0 auto;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .login-form h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+  }
+
+  .login-form p {
+    font-size: 1rem;
+    margin-bottom: 25px;
+  }
+
+  .login-toggle {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .toggle-btn {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 1rem;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+  }
+
+  .form-group input {
+    padding: 12px 15px;
+    font-size: 1rem;
+  }
+
+  .login-btn {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 1rem;
+    margin-bottom: 20px;
+  }
+
+  .signup-link {
+    font-size: 0.95rem;
+  }
+
+  .error-message, .success-message {
+    padding: 12px;
+    font-size: 0.95rem;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .login-container {
+    padding: 15px 10px;
+    margin-top: 60px;
+  }
+
+  .login-form {
+    padding: 25px 15px;
+  }
+
+  .login-form h1 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+  }
+
+  .login-form p {
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+  }
+
+  .toggle-btn {
+    padding: 10px 15px;
+    font-size: 0.95rem;
+  }
+
+  .form-group input {
+    padding: 10px 12px;
+    font-size: 0.95rem;
+  }
+
+  .login-btn {
+    padding: 10px 15px;
+    font-size: 0.95rem;
+  }
+
+  .signup-link {
+    font-size: 0.9rem;
+  }
+
+  .footer {
+    padding: 20px 10px;
+    font-size: 0.9rem;
+  }
+
+  .footer a {
+    margin: 0 5px;
+    display: inline-block;
+    margin-bottom: 5px;
+  }
 }
 
 /* Responsive Design */

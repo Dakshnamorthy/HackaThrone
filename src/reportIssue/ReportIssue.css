@@ -211,3 +211,244 @@
     padding: 20px 10px;
   }
 }
+
+/* Enhanced mobile responsive styles */
+@media (max-width: 768px) {
+  .reportIssue-container {
+    padding: 20px 15px;
+    margin-top: 80px;
+  }
+
+  .reportIssue-container h1 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+  }
+
+  .reportIssue-container p {
+    font-size: 1rem;
+    margin-bottom: 25px;
+  }
+
+  .report-form {
+    padding: 25px 20px;
+    margin: 0;
+    max-width: 100%;
+  }
+
+  .report-form label {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+  }
+
+  .report-form select,
+  .report-form textarea,
+  .report-form input[type="text"] {
+    padding: 12px 15px;
+    font-size: 1rem;
+    margin-bottom: 15px;
+  }
+
+  .report-form textarea {
+    min-height: 120px;
+  }
+
+  .image-upload {
+    margin-bottom: 20px;
+  }
+
+  .image-upload input[type="file"] {
+    padding: 10px;
+    font-size: 0.95rem;
+  }
+
+  .image-previews {
+    gap: 10px;
+  }
+
+  .image-preview {
+    width: 80px;
+    height: 80px;
+  }
+
+  .location-input {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .location-input input {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .location-input button {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 1rem;
+    margin-top: 20px;
+  }
+
+  .ticket-confirmation {
+    padding: 15px;
+    font-size: 0.95rem;
+    margin-top: 20px;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .reportIssue-container {
+    padding: 15px 10px;
+    margin-top: 60px;
+  }
+
+  .reportIssue-container h1 {
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+  }
+
+  .reportIssue-container p {
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+  }
+
+  .report-form {
+    padding: 20px 15px;
+  }
+
+  .report-form label {
+    font-size: 0.9rem;
+  }
+
+  .report-form select,
+  .report-form textarea,
+  .report-form input[type="text"] {
+    padding: 10px 12px;
+    font-size: 0.95rem;
+  }
+
+  .image-preview {
+    width: 70px;
+    height: 70px;
+  }
+
+  .location-input button {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
+
+  .submit-btn {
+    padding: 10px 15px;
+    font-size: 0.95rem;
+  }
+
+  .ticket-confirmation {
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Login Required Styles */
+.login-required {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.login-message {
+  text-align: center;
+  background: white;
+  padding: 40px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  max-width: 400px;
+}
+
+.login-message h3 {
+  color: #00796b;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+}
+
+.login-message p {
+  color: #666;
+  margin-bottom: 25px;
+  font-size: 1rem;
+}
+
+.login-redirect-btn {
+  background-color: #00796b;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-redirect-btn:hover {
+  background-color: #004d40;
+}
+
+/* Location detection button styles */
+.location-inputs button {
+  position: relative;
+  overflow: hidden;
+}
+
+.location-inputs button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 121, 107, 0.3);
+}
+
+/* GPS location button (mobile) */
+.location-inputs button:contains("📍") {
+  background: linear-gradient(135deg, #00796b, #26a69a);
+  border: none;
+  color: white;
+}
+
+/* Image detection button (desktop) */
+.location-inputs button:contains("📷") {
+  background: linear-gradient(135deg, #5d4e75, #8e7cc3);
+  border: none;
+  color: white;
+}
+
+/* Loading state for location detection */
+.location-inputs button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Location help text */
+.location-help {
+  margin-top: 5px;
+  text-align: center;
+}
+
+.location-help small {
+  color: #666;
+  font-size: 0.8rem;
+}
+
+/* Mobile responsive location button */
+@media (max-width: 768px) {
+  .location-inputs button {
+    font-size: 0.9rem;
+    padding: 10px 15px;
+  }
+  
+  .location-help {
+    margin-top: 8px;
+  }
+}

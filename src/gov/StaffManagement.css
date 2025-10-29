@@ -1,0 +1,272 @@
+.staff-management-container {
+  padding-top: 100px;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 40px;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.page-header h1 {
+  color: #2c3e50;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.page-header p {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+}
+
+.staff-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  background-color: #3498db;
+  color: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-info h3 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0;
+  color: #2c3e50;
+}
+
+.stat-info p {
+  margin: 5px 0 0 0;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.filters-section {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 25px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-bar {
+  flex: 1;
+  min-width: 300px;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.filter-controls select {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: white;
+  cursor: pointer;
+  min-width: 200px;
+}
+
+.staff-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.staff-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.staff-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+}
+
+.staff-avatar {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0 auto 20px auto;
+}
+
+.staff-info h3 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 5px;
+  font-size: 1.3rem;
+}
+
+.staff-id {
+  text-align: center;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.staff-details {
+  margin-bottom: 20px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  color: #34495e;
+  font-size: 0.9rem;
+}
+
+.detail-item svg {
+  color: #7f8c8d;
+  flex-shrink: 0;
+}
+
+.detail-item span {
+  line-height: 1.4;
+}
+
+.staff-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 15px;
+  border-top: 1px solid #ecf0f1;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.gender-badge {
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.gender-badge.male {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.gender-badge.female {
+  background-color: #fce4ec;
+  color: #c2185b;
+}
+
+.join-date {
+  color: #7f8c8d;
+  font-size: 0.8rem;
+}
+
+.no-staff {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.no-staff p {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  font-style: italic;
+}
+
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 1.2rem;
+  color: #7f8c8d;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .staff-management-container {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+  }
+
+  .filters-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-bar {
+    min-width: auto;
+  }
+
+  .filter-controls select {
+    min-width: auto;
+  }
+
+  .staff-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .staff-meta {
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .staff-card {
+    padding: 20px;
+  }
+
+  .detail-item {
+    font-size: 0.85rem;
+  }
+
+  .staff-info h3 {
+    font-size: 1.1rem;
+  }
+}

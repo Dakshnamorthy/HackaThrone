@@ -1,9 +1,14 @@
 import Navbar from '../components/Navbar';
 import './Home.css';
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../context/SimpleAuthContext';
 
 function Home() {
   const navigate = useNavigate();
+  const { user, userRole } = useAuth();
+  
+  const isLoggedIn = user && userRole === 'citizen';
+  
   return (
     <>
       <Navbar />
@@ -16,9 +21,11 @@ function Home() {
             <button onClick={() => navigate("/report-issue")} className="report-btn">
               Report an Issue
             </button>
-            <button onClick={() => navigate("/login")} className="home-login-btn">
-             Login
-            </button>
+            {!isLoggedIn && (
+              <button onClick={() => navigate("/login")} className="home-login-btn">
+               Login
+              </button>
+            )}
           </div>
         </section>
 
