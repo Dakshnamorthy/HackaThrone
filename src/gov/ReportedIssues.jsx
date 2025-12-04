@@ -7,6 +7,7 @@ import './ReportedIssues.css';
 
 const ReportedIssues = () => {
   const { user } = useAuth(); // Get current user for tracking who made changes
+  const ML_API_URL = import.meta.env.VITE_ML_API_URL || 'http://localhost:5001';
   const [issues, setIssues] = useState([]);
   const [filteredIssues, setFilteredIssues] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -539,7 +540,7 @@ const ReportedIssues = () => {
       console.log('Predicting priority for issue:', issue);
 
       // Call the ML priority model server
-      const response = await fetch('http://localhost:5001/api/calculate-priority', {
+      const response = await fetch(`${ML_API_URL}/api/calculate-priority`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -668,7 +669,7 @@ const ReportedIssues = () => {
 
       // Call the ML priority model server with batch endpoint
       console.log('⏳ Step 1/3: Calling ML model...');
-      const response = await fetch('http://localhost:5001/api/calculate-priorities', {
+      const response = await fetch(`${ML_API_URL}/api/calculate-priorities`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

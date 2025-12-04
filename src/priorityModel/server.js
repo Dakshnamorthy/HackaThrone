@@ -8,7 +8,7 @@ const app = express();
 
 // Enable CORS for your React app
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:5173'],
+  origin: '*', // Allow all origins for now (restrict in production)
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Origin', 'Content-Type', 'Authorization'],
   credentials: true
