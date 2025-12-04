@@ -2,6 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const { PythonShell } = require('python-shell');
+const { spawn } = require('child_process');
 
 const app = express();
 
@@ -151,7 +152,61 @@ app.post('/api/calculate-priority', async (req, res) => {
   }
 });
 
-// API endpoint to get priority for multiple issues
+// Optimized batch prediction - single Python process for all issues
+async function getMLPriorityBatch(issues) {
+  return new Promise((resolve) => {
+    try {
+      const py = spawn(process.env.PYTHON_CMD || 'python3', ['predict_batch.py'], {
+        cwd: __dirname
+      });
+      
+      let out = '';
+      let err = '';
+      
+      py.stdout.on('data', (b) => (out += b.toString()));
+      py.stderr.on('data', (b) => (err += b.toString()));
+      
+      py.on('close', (code) => {
+        if (err) {
+          console.warn('Python stderr:', err);
+        }
+        try {
+          const parsed = JSON.parse(out);
+          resolve(parsed);
+        } catch (e) {
+          console.error('Failed parsing Python output:', out, e);
+          resolve({ success: false, error: 'invalid python output' });
+        }
+      });
+      
+      // Prepare batch data with contextual factors
+      const batchData = issues.map(issue => {
+        const lat = issue.latitude || 11.9416;
+        const lng = issue.longitude || 79.8083;
+        return {
+          id: issue.id,
+          type: issue.type,
+          latitude: lat,
+          longitude: lng,
+          is_rain: getWeatherImpact(lat, lng) > 0,
+          traffic: getTrafficImpact(lat, lng),
+          blur: estimateBlur(),
+          repeat_count: countNearbyIssues(lat, lng),
+          hour: new Date().getHours()
+        };
+      });
+      
+      // Send all issues at once
+      py.stdin.write(JSON.stringify(batchData));
+      py.stdin.end();
+    } catch (e) {
+      console.error('Batch prediction error:', e);
+      resolve({ success: false, error: e.message });
+    }
+  });
+}
+
+// API endpoint to get priority for multiple issues (OPTIMIZED)
 app.post('/api/calculate-priorities', async (req, res) => {
   try {
     const { issues } = req.body;
@@ -163,16 +218,28 @@ app.post('/api/calculate-priorities', async (req, res) => {
       });
     }
 
-    const results = [];
+    console.log(`📊 Processing ${issues.length} issues in batch...`);
+    const startTime = Date.now();
     
-    for (const issue of issues) {
-      const priorityScore = await getMLPriority(issue);
-      results.push({
-        id: issue.id,
-        priorityScore: priorityScore.toFixed(3),
-        priority: priorityScore > 0.7 ? 'High' : priorityScore > 0.4 ? 'Medium' : 'Low'
-      });
+    // Use optimized batch prediction
+    const batchResult = await getMLPriorityBatch(issues);
+    
+    if (!batchResult.success) {
+      throw new Error(batchResult.error || 'Batch prediction failed');
     }
+    
+    // Map scores to priority levels
+    const results = batchResult.results.map(result => {
+      const score = result.priority_score;
+      return {
+        id: result.id,
+        priorityScore: score.toFixed(3),
+        priority: score > 0.7 ? 'High' : score > 0.4 ? 'Medium' : 'Low'
+      };
+    });
+    
+    const duration = Date.now() - startTime;
+    console.log(`✅ Batch complete: ${issues.length} issues in ${duration}ms (${(duration/issues.length).toFixed(0)}ms per issue)`);
 
     res.json({
       success: true,

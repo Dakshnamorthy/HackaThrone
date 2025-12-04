@@ -1,0 +1,259 @@
+.help-container {
+  padding: 80px 20px 40px;
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.help-container h1 {
+  text-align: center;
+  color: #004d40;
+  margin-bottom: 10px;
+  font-size: 2rem;
+}
+
+.help-container .intro {
+  text-align: center;
+  color: #00796b;
+  margin-bottom: 40px;
+  font-size: 1.1rem;
+}
+
+/* FAQ Section */
+.faq-section {
+  max-width: 800px;
+  margin: 0 auto 50px;
+  padding: 0 15px;
+}
+
+.faq-section h2 {
+  color: #004d40;
+  margin-bottom: 20px;
+  font-size: 1.6rem;
+}
+
+.faq-item {
+  background-color: white;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.faq-question {
+  padding: 15px 20px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #00796b;
+  color: white;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.faq-question:hover {
+  background-color: #00695c;
+}
+
+.faq-answer {
+  padding: 15px 20px;
+  color: #004d40;
+  background-color: #e0f2f1;
+  line-height: 1.5;
+}
+
+.faq-toggle {
+  font-size: 1.2rem;
+}
+
+/* Tips Section */
+.tips-section {
+  max-width: 800px;
+  margin: 0 auto 50px;
+  padding: 0 15px;
+}
+
+.tips-section h2 {
+  color: #004d40;
+  margin-bottom: 15px;
+  font-size: 1.6rem;
+}
+
+.tips-section ul {
+  list-style-type: disc;
+  padding-left: 25px;
+}
+
+.tips-section li {
+  margin-bottom: 10px;
+  color: #00796b;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+/* Contact Section */
+.contact-section {
+  max-width: 600px;
+  margin: 0 auto 50px;
+  padding: 0 15px;
+}
+
+.contact-section h2 {
+  color: #004d40;
+  margin-bottom: 15px;
+  font-size: 1.6rem;
+}
+
+.contact-form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #004d40;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: #00796b;
+  outline: none;
+}
+
+.submit-btn {
+  background-color: #00796b;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.submit-btn:hover {
+  background-color: #004d40;
+  transform: scale(1.05);
+}
+
+.contact-info {
+  margin-top: 10px;
+  text-align: center;
+  color: #00796b;
+  font-size: 0.95rem;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 30px 20px;
+  background-color: #004d40;
+  color: white;
+  font-size: 0.95rem;
+}
+
+.footer a {
+  color: #b2dfdb;
+  margin: 0 10px;
+  text-decoration: none;
+  display: inline-block;
+  padding: 5px;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .help-container {
+    padding: 70px 15px 40px;
+  }
+  .faq-section, .tips-section, .contact-section {
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 768px) {
+  .help-container h1 {
+    font-size: 1.8rem;
+  }
+
+  .faq-question {
+    font-size: 0.95rem;
+    padding: 12px 16px;
+  }
+
+  .faq-answer {
+    font-size: 0.9rem;
+  }
+
+  .tips-section li {
+    font-size: 0.95rem;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 25px;
+  }
+}
+
+@media (max-width: 480px) {
+  .help-container {
+    padding: 60px 10px 30px;
+  }
+
+  .help-container h1 {
+    font-size: 1.6rem;
+  }
+
+  .help-container .intro {
+    font-size: 1rem;
+  }
+
+  .faq-section h2,
+  .tips-section h2,
+  .contact-section h2 {
+    font-size: 1.4rem;
+    text-align: center;
+  }
+
+  .faq-question {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .faq-toggle {
+    align-self: flex-end;
+  }
+
+  .tips-section ul {
+    padding-left: 18px;
+  }
+
+  .tips-section li {
+    font-size: 0.9rem;
+  }
+
+  .contact-form input,
+  .contact-form textarea {
+    font-size: 0.9rem;
+  }
+
+  .footer {
+    font-size: 0.85rem;
+    padding: 20px 10px;
+  }
+}

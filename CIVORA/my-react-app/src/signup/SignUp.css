@@ -1,0 +1,225 @@
+.signup-page-container {
+  display: flex;
+  flex-wrap: wrap;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Hero Section */
+.signup-hero {
+  flex: 1;
+  min-width: 320px;
+  background: linear-gradient(135deg, #004d40, #00796b);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+}
+
+.hero-content {
+  text-align: left;
+  max-width: 400px;
+}
+
+.hero-content h1 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.hero-content p {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+.hero-features {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.hero-features li {
+  margin-bottom: 10px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.hero-cta {
+  font-weight: bold;
+  margin-top: 10px;
+  font-size: 1rem;
+}
+
+/* Form Section */
+.signup-form-section {
+  flex: 1;
+  min-width: 320px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 30px;
+  background-color: #e0f2f1;
+}
+
+.signup-form-container {
+  width: 100%;
+  max-width: 400px;
+  padding-top: 80px; /* offset for fixed navbar */
+}
+
+.signup-form-container h2 {
+  color: #004d40;
+  margin-bottom: 30px;
+  text-align: center;
+  font-size: 2rem;
+}
+
+.signup-form-container label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #004d40;
+  font-size: 0.95rem;
+}
+
+.signup-form-container input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.signup-btn,
+.geo-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.signup-btn {
+  background-color: #00796b;
+  color: white;
+}
+
+.signup-btn:hover {
+  background-color: #004d40;
+  transform: translateY(-2px);
+}
+
+.geo-btn {
+  background-color: #26a69a;
+  color: white;
+  margin-bottom: 20px;
+}
+
+.geo-btn:hover {
+  background-color: #00796b;
+  transform: translateY(-2px);
+}
+
+.login-text {
+  text-align: center;
+  margin-top: 15px;
+  color: #00796b;
+  font-size: 0.95rem;
+}
+
+.login-text a {
+  text-decoration: none;
+  color: #004d40;
+  font-weight: bold;
+}
+
+.login-text a:hover {
+  color: #00796b;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 30px 20px;
+  background-color: #004d40;
+  color: white;
+}
+
+.footer a {
+  color: #b2dfdb;
+  margin: 0 10px;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive for tablets and smaller screens */
+@media (max-width: 1024px) {
+  .signup-hero, .signup-form-section {
+    padding: 50px 30px;
+  }
+}
+
+/* Responsive for mobile */
+@media (max-width: 768px) {
+  .signup-page-container {
+    flex-direction: column;
+  }
+
+  .signup-hero, .signup-form-section {
+    padding: 40px 20px;
+  }
+
+  .hero-content h1 {
+    font-size: 2rem;
+  }
+
+  .hero-content p,
+  .hero-features li,
+  .hero-cta {
+    font-size: 0.95rem;
+  }
+
+  .signup-form-container h2 {
+    font-size: 1.6rem;
+  }
+
+  .signup-form-container input,
+  .signup-btn,
+  .geo-btn {
+    font-size: 0.95rem;
+    padding: 10px;
+  }
+}
+
+/* Responsive for very small screens */
+@media (max-width: 480px) {
+  .hero-content h1 {
+    font-size: 1.8rem;
+  }
+
+  .signup-form-container h2 {
+    font-size: 1.4rem;
+  }
+
+  .signup-btn,
+  .geo-btn {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+
+  .hero-content p,
+  .hero-features li {
+    font-size: 0.9rem;
+  }
+}

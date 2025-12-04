@@ -67,7 +67,7 @@ columns = [
     'traffic', 'blur', 'repeat_count', 'hour', 'priority'
 ]
 df = pd.DataFrame(data, columns=columns)
-df.to_csv('ml/training_data.csv', index=False)
+df.to_csv('training_data.csv', index=False)
 print("✅ Saved training_data.csv")
 
 X = df.drop('priority', axis=1)
@@ -77,7 +77,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 model = RandomForestRegressor(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 
-joblib.dump(model, 'ml/priority_model.pkl')
-print("✅ Model saved: ml/priority_model.pkl")
+joblib.dump(model, 'priority_model.pkl')
+print("✅ Model saved: priority_model.pkl")
 
 print(f"📈 Model accuracy: Train={model.score(X_train, y_train):.3f}, Test={model.score(X_test, y_test):.3f}")

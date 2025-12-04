@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import GovNavbar from '../components/GovNavbar';
-import { Search, Filter, MapPin, Calendar, User, Eye, Edit, Clock, Brain, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Search, Filter, MapPin, Calendar, User, Eye, Edit, Clock, Brain, AlertTriangle, CheckCircle, Sparkles } from 'lucide-react';
 import { supabase } from '../../supabaseClient';
 import { useAuth } from '../context/SimpleAuthContext';
 import './ReportedIssues.css';
@@ -22,6 +22,7 @@ const ReportedIssues = () => {
   const [predictingPriority, setPredictingPriority] = useState(null); // Track which issue is getting priority prediction
   const [resolutionPhoto, setResolutionPhoto] = useState(null); // Store resolution photo
   const [photoRequired, setPhotoRequired] = useState(false); // Track if photo is required for current edit
+  const [prioritizingAll, setPrioritizingAll] = useState(false); // Track batch prioritization
 
   useEffect(() => {
     fetchIssues();
@@ -33,19 +34,30 @@ const ReportedIssues = () => {
 
   const fetchIssues = async () => {
     try {
-      // Fetch issues excluding closed ones (they are removed from both sides)
-      const { data, error } = await supabase
+      // Fetch all issues first (simplest query)
+      let data, error;
+      
+      const result = await supabase
         .from('issues')
-        .select('*')
-        .neq('status', 'Closed') // Filter out closed issues
-        .order('created_at', { ascending: false });
+        .select('*');
+      
+      data = result.data;
+      error = result.error;
 
       if (error) {
         console.error('Database error:', error);
+        console.error('Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
         throw error;
       }
 
       console.log('Fetched issues:', data);
+      console.log('Sample issue with score:', data?.[0]?.priority_score);
+      console.log('Sample issue structure:', data?.[0]);
       setIssues(data || []);
     } catch (error) {
       console.error('Error fetching issues:', error);
@@ -553,20 +565,35 @@ const ReportedIssues = () => {
         throw new Error(result.message || 'Priority calculation failed');
       }
 
-      // Update the issue priority in the database
+      // Update the issue priority and score in the database
+      const updatePayload = {
+        priority: result.priority,
+        priority_score: parseFloat(result.priorityScore),
+        updated_at: new Date().toISOString()
+      };
+      
+      console.log('Updating issue with payload:', updatePayload);
+      
       const { data: updatedIssue, error: updateError } = await supabase
         .from('issues')
-        .update({
-          priority: result.priority, // "High", "Medium", "Low"
-          updated_at: new Date().toISOString()
-        })
+        .update(updatePayload)
         .eq('id', issue.id)
         .select('*');
 
-      console.log('Database update result:', { data: updatedIssue, error: updateError });
+      console.log('Database update result:', { 
+        data: updatedIssue, 
+        error: updateError,
+        errorDetails: updateError ? {
+          message: updateError.message,
+          details: updateError.details,
+          hint: updateError.hint,
+          code: updateError.code
+        } : null
+      });
 
       if (updateError) {
         console.error('Database update error:', updateError);
+        alert(`Database Error: ${updateError.message}\n\nDetails: ${updateError.details || 'None'}\nHint: ${updateError.hint || 'None'}`);
         throw updateError;
       }
 
@@ -576,6 +603,7 @@ const ReportedIssues = () => {
           .from('issues')
           .update({
             priority: result.priority,
+            priority_score: parseFloat(result.priorityScore),
             updated_at: new Date().toISOString()
           })
           .eq('id', issue.id);
@@ -591,6 +619,7 @@ const ReportedIssues = () => {
           i.id === issue.id ? {
             ...i,
             priority: result.priority,
+            priority_score: parseFloat(result.priorityScore),
             updated_at: new Date().toISOString()
           } : i
         )
@@ -601,6 +630,7 @@ const ReportedIssues = () => {
           i.id === issue.id ? {
             ...i,
             priority: result.priority,
+            priority_score: parseFloat(result.priorityScore),
             updated_at: new Date().toISOString()
           } : i
         )
@@ -618,6 +648,154 @@ const ReportedIssues = () => {
       }
     } finally {
       setPredictingPriority(null);
+    }
+  };
+
+  const prioritizeAllIssues = async () => {
+    if (!filteredIssues || filteredIssues.length === 0) {
+      alert('No issues to prioritize');
+      return;
+    }
+
+    if (!confirm(`🤖 Prioritize All Issues?\n\nThis will calculate AI-based priorities for ${filteredIssues.length} issue(s) using the ML model.\n\nContinue?`)) {
+      return;
+    }
+
+    try {
+      setPrioritizingAll(true);
+      const startTime = Date.now();
+      console.log(`Starting batch prioritization for ${filteredIssues.length} issues`);
+
+      // Call the ML priority model server with batch endpoint
+      console.log('⏳ Step 1/3: Calling ML model...');
+      const response = await fetch('http://localhost:5001/api/calculate-priorities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          issues: filteredIssues.map(issue => ({
+            id: issue.id,
+            type: issue.type,
+            latitude: issue.latitude || 11.9416,
+            longitude: issue.longitude || 79.8083,
+            description: issue.description,
+            location: issue.location
+          }))
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Priority server error: ${response.status}`);
+      }
+
+      const result = await response.json();
+      const mlTime = Date.now() - startTime;
+      console.log(`✅ Step 1 complete (${mlTime}ms): ML predictions received`);
+      console.log('Batch priority prediction result:', result);
+
+      if (!result.success) {
+        throw new Error(result.message || 'Batch priority calculation failed');
+      }
+
+      // Update all issues in the database (parallel for speed)
+      console.log('⏳ Step 2/3: Updating database with scores (parallel)...');
+      console.log('Sample update payload:', {
+        priority: result.results[0].priority,
+        priority_score: parseFloat(result.results[0].priorityScore),
+        updated_at: new Date().toISOString()
+      });
+      
+      const dbStartTime = Date.now();
+      
+      const updatePromises = result.results.map(priorityResult =>
+        supabase
+          .from('issues')
+          .update({
+            priority: priorityResult.priority,
+            priority_score: parseFloat(priorityResult.priorityScore),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', priorityResult.id)
+          .then(({ error, data }) => ({ 
+            id: priorityResult.id, 
+            error,
+            errorDetails: error ? {
+              message: error.message,
+              details: error.details,
+              hint: error.hint,
+              code: error.code
+            } : null
+          }))
+          .catch(err => ({ id: priorityResult.id, error: err }))
+      );
+
+      const updateResults = await Promise.all(updatePromises);
+      const dbTime = Date.now() - dbStartTime;
+      console.log(`✅ Step 2 complete (${dbTime}ms): Database updated`);
+      
+      const successCount = updateResults.filter(r => !r.error).length;
+      const failCount = updateResults.filter(r => r.error).length;
+      
+      if (failCount > 0) {
+        const failedUpdates = updateResults.filter(r => r.error);
+        console.error('❌ Failed updates:', failedUpdates);
+        console.error('Error details:', failedUpdates.map(f => f.errorDetails));
+        
+        // Show first error to user
+        if (failedUpdates[0].errorDetails) {
+          alert(`Database Update Error:\n\n${failedUpdates[0].errorDetails.message}\n\nDetails: ${failedUpdates[0].errorDetails.details || 'None'}\n\nHint: ${failedUpdates[0].errorDetails.hint || 'Check if priority_score column exists'}`);
+        }
+      }
+
+      // Update local state with new priorities
+      console.log('⏳ Step 3/3: Updating UI...');
+      const priorityMap = new Map(result.results.map(r => [r.id, { priority: r.priority, score: parseFloat(r.priorityScore) }]));
+      
+      setIssues(prevIssues =>
+        prevIssues.map(issue => {
+          const newData = priorityMap.get(issue.id);
+          return newData ? {
+            ...issue,
+            priority: newData.priority,
+            priority_score: newData.score,
+            updated_at: new Date().toISOString()
+          } : issue;
+        })
+      );
+
+      setFilteredIssues(prevFiltered =>
+        prevFiltered.map(issue => {
+          const newData = priorityMap.get(issue.id);
+          return newData ? {
+            ...issue,
+            priority: newData.priority,
+            priority_score: newData.score,
+            updated_at: new Date().toISOString()
+          } : issue;
+        })
+      );
+
+      // Refresh from database to get the persisted scores
+      console.log('🔄 Refreshing from database with persisted scores...');
+      await fetchIssues();
+      
+      const totalTime = Date.now() - startTime;
+      console.log(`✅ Step 3 complete: UI updated`);
+      console.log(`🎉 Total time: ${totalTime}ms (${(totalTime/1000).toFixed(2)}s)`);
+
+      alert(`✅ Batch Prioritization Complete!\n\nSuccessfully updated: ${successCount} issue(s)\nFailed: ${failCount} issue(s)\nTotal time: ${(totalTime/1000).toFixed(2)}s\n\n✅ Priorities and scores saved to database permanently!`);
+
+    } catch (error) {
+      console.error('Batch priority prediction error:', error);
+      
+      if (error.message.includes('Failed to fetch') || error.message.includes('Priority server error')) {
+        alert(`❌ Priority Model Server Error\n\nMake sure the priority model server is running:\n\n1. Open terminal\n2. cd src/priorityModel\n3. npm install\n4. npm start\n\nServer should run on http://localhost:5001`);
+      } else {
+        alert(`❌ Batch Priority Prediction Failed\n\nError: ${error.message}\n\nPlease try again or check the console for details.`);
+      }
+    } finally {
+      setPrioritizingAll(false);
     }
   };
 
@@ -675,6 +853,44 @@ const ReportedIssues = () => {
         <div className="page-header">
           <h1>Reported Issues</h1>
           <p>Manage and track all citizen-reported issues</p>
+          <button 
+            className="btn-prioritize-all"
+            onClick={prioritizeAllIssues}
+            disabled={prioritizingAll || filteredIssues.length === 0}
+            style={{
+              marginTop: '1rem',
+              padding: '0.75rem 1.5rem',
+              backgroundColor: prioritizingAll ? '#9e9e9e' : '#9c27b0',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '1rem',
+              fontWeight: '600',
+              cursor: prioritizingAll || filteredIssues.length === 0 ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              transition: 'all 0.3s ease',
+              opacity: filteredIssues.length === 0 ? 0.5 : 1
+            }}
+            onMouseEnter={(e) => {
+              if (!prioritizingAll && filteredIssues.length > 0) {
+                e.target.style.backgroundColor = '#7b1fa2';
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 4px 12px rgba(156, 39, 176, 0.3)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!prioritizingAll) {
+                e.target.style.backgroundColor = '#9c27b0';
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = 'none';
+              }
+            }}
+          >
+            <Sparkles size={20} />
+            {prioritizingAll ? 'Prioritizing All Issues...' : `Prioritize All Issues (${filteredIssues.length})`}
+          </button>
         </div>
 
         <div className="filters-section">
@@ -762,6 +978,16 @@ const ReportedIssues = () => {
                         style={{ backgroundColor: getPriorityColor(issue.priority) }}
                       >
                         {issue.priority} Priority
+                        {issue.priority_score && (
+                          <span style={{ 
+                            marginLeft: '6px', 
+                            fontSize: '0.85em', 
+                            opacity: 0.9,
+                            fontWeight: '600'
+                          }}>
+                            ({(issue.priority_score * 100).toFixed(0)}%)
+                          </span>
+                        )}
                       </span>
                       <span 
                         className="status-badge"
@@ -783,6 +1009,22 @@ const ReportedIssues = () => {
                     {issue.assigned_to && (
                       <p className="issue-assignment">
                         👤 Assigned to: {issue.assigned_to}
+                      </p>
+                    )}
+                    {issue.priority_score && (
+                      <p className="issue-ml-score" style={{
+                        marginTop: '8px',
+                        padding: '6px 10px',
+                        backgroundColor: '#f5f5f5',
+                        borderRadius: '4px',
+                        fontSize: '0.9em',
+                        color: '#555',
+                        display: 'inline-block'
+                      }}>
+                        🤖 ML Score: <strong>{(issue.priority_score * 100).toFixed(1)}%</strong>
+                        <span style={{ marginLeft: '8px', color: '#888' }}>
+                          (Raw: {issue.priority_score.toFixed(3)})
+                        </span>
                       </p>
                     )}
                   </div>
@@ -922,14 +1164,6 @@ const ReportedIssues = () => {
                           <button className="btn-view">
                             <Eye size={16} />
                             View Details
-                          </button>
-                          <button 
-                            className="btn-predict"
-                            onClick={() => predictPriority(issue)}
-                            disabled={predictingPriority === issue.id}
-                          >
-                            <Brain size={16} />
-                            {predictingPriority === issue.id ? 'Predicting...' : 'AI Priority'}
                           </button>
                           <button 
                             className="btn-edit"

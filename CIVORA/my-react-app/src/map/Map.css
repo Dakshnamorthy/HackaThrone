@@ -1,0 +1,108 @@
+.map-container {
+  padding: 80px 20px 40px; /* space below fixed navbar */
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.map-container h1 {
+  text-align: center;
+  color: #004d40;
+  margin-bottom: 10px;
+  font-size: 2rem;
+}
+
+.map-container .map-intro {
+  text-align: center;
+  color: #00796b;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+/* Leaflet map container */
+#city-map {
+  width: 100%;
+  height: 500px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  margin: 0 auto 40px;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 30px 20px;
+  background-color: #004d40;
+  color: white;
+  font-size: 0.95rem;
+}
+
+.footer a {
+  color: #b2dfdb;
+  margin: 0 10px;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+
+/* Tablets */
+@media (max-width: 1024px) {
+  #city-map {
+    height: 400px;
+  }
+
+  .map-container h1 {
+    font-size: 1.9rem;
+  }
+
+  .map-container .map-intro {
+    font-size: 1rem;
+  }
+}
+
+/* Small Tablets / Large Phones */
+@media (max-width: 768px) {
+  .map-container {
+    padding: 60px 15px 30px;
+  }
+
+  #city-map {
+    height: 350px;
+  }
+
+  .map-container h1 {
+    font-size: 1.7rem;
+  }
+
+  .map-container .map-intro {
+    font-size: 0.95rem;
+  }
+}
+
+/* Phones */
+@media (max-width: 480px) {
+  .map-container {
+    padding: 50px 10px 20px;
+  }
+
+  #city-map {
+    height: 250px;
+  }
+
+  .map-container h1 {
+    font-size: 1.5rem;
+  }
+
+  .map-container .map-intro {
+    font-size: 0.9rem;
+  }
+
+  .footer {
+    font-size: 0.85rem;
+    padding: 20px 10px;
+  }
+}

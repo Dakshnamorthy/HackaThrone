@@ -1,0 +1,87 @@
+[
+  {
+    "id": 1762933201269,
+    "issueType": "Pothole",
+    "description": "very worst condition",
+    "lat": 11.0274,
+    "lon": 77.0307,
+    "images": [
+      "1762933201258-paththole.jpg"
+    ],
+    "weather": "PartlyCloudy",
+    "temp": 27.5,
+    "traffic_delay": 0,
+    "repeat_count": 0,
+    "hour": 13,
+    "priority_score": 0,
+    "createdAt": "2025-11-12T07:40:01.269Z"
+  },
+  {
+    "id": 1762933268498,
+    "issueType": "Pothole",
+    "description": "very badddddddd",
+    "lat": 11.0274,
+    "lon": 77.0307,
+    "images": [
+      "1762933268489-paththole.jpg"
+    ],
+    "weather": "PartlyCloudy",
+    "temp": 27.5,
+    "traffic_delay": 60,
+    "repeat_count": 1,
+    "hour": 13,
+    "priority_score": 0,
+    "createdAt": "2025-11-12T07:41:08.498Z"
+  },
+  {
+    "id": 1762933763191,
+    "issueType": "Garbage",
+    "description": "veryf gmbgy vghghjt",
+    "lat": 11.0274,
+    "lon": 77.0307,
+    "images": [
+      "1762933763182-garbage.jpg"
+    ],
+    "weather": "PartlyCloudy",
+    "temp": 27.7,
+    "traffic_delay": 120,
+    "repeat_count": 0,
+    "hour": 13,
+    "priority_score": 0,
+    "createdAt": "2025-11-12T07:49:23.191Z"
+  },
+  {
+    "id": 1762935565444,
+    "issueType": "Pothole",
+    "description": "jnhyg hb",
+    "lat": 11.0274,
+    "lon": 77.0307,
+    "images": [
+      "1762935565427-paththole.jpg"
+    ],
+    "weather": "PartlyCloudy",
+    "temp": 28,
+    "traffic_delay": 180,
+    "repeat_count": 2,
+    "hour": 13,
+    "priority_score": 0,
+    "createdAt": "2025-11-12T08:19:25.444Z"
+  },
+  {
+    "id": 1762936140503,
+    "issueType": "Pothole",
+    "description": "worst ra dei",
+    "lat": 11.0274,
+    "lon": 77.0307,
+    "images": [
+      "1762936140495-gar.jpg"
+    ],
+    "weather": "PartlyCloudy",
+    "temp": 28,
+    "traffic_delay": 240,
+    "repeat_count": 3,
+    "hour": 13,
+    "priority_score": 0.78,
+    "createdAt": "2025-11-12T08:29:00.503Z"
+  }
+]
